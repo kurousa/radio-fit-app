@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+    <script>
+      var tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      var firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+      var player
+      function onYouTubeIframeAPIReady() {
+        // Vueコンポーネント内でプレイヤーを初期化するため、この関数はグローバルに存在
+        // ただし、Vueのライフサイクルに合わせて呼び出す必要あり
+      }
+    </script>
+  </body>
+</html>
