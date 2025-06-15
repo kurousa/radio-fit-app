@@ -141,7 +141,7 @@ export default defineComponent({
     // `YouTubePlayer` は `v-if` で制御されているため、
     // `isAudioOnlyMode` が `false` になると自動的に再描画され、新しい `videoId` でロードされます。
     // ここでの `watch` は主に `isAudioOnlyMode` のリセットのため。
-    watch(selectedExerciseType, (newType) => {
+    watch(selectedExerciseType, () => {
       // 選択した体操が切り替わったら、自動的に動画モードにする
       isAudioOnlyMode.value = false
     })

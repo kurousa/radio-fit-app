@@ -69,10 +69,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, computed, watch } from 'vue'
-import { getAllRecords, ExerciseRecord } from '../services/recordService' // 記録サービスをインポート
-
-// V-Calendarの型定義（必要であれば）
-// import { CalendarAttribute } from 'v-calendar';
+import { getAllRecords } from '../services/recordService' // 記録サービスをインポート
+import type { ExerciseRecord } from '../services/recordService'
 
 export default defineComponent({
   name: 'ProfileView',
@@ -88,7 +86,7 @@ export default defineComponent({
     const supportEmail = 'support@example.com'
 
     // V-Calendarのための属性（ハイライト表示など）
-    const calendarAttributes = ref<any[]>([]) // V-Calendarの属性配列
+    const calendarAttributes = ref<unknown>([]) // V-Calendarの属性配列
 
     // 現在の日付を取得
     const today = new Date()
@@ -124,7 +122,6 @@ export default defineComponent({
 
       let maxStreak = 0
       let currentStreak = 0
-      const lastDate: Date | null = null
 
       // 記録を日付順にソートする (ISO文字列なので直接比較可能だが、Dateオブジェクトに変換してソートするのがより堅牢)
       const sortedRecords = [...allRecords.value].sort((a, b) => {

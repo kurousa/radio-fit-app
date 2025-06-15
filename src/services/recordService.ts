@@ -40,7 +40,7 @@ export async function recordExercise(date: string, type: 'first' | 'second'): Pr
 export async function getAllRecords(): Promise<ExerciseRecord[]> {
   const allRecords: ExerciseRecord[] = []
   try {
-    await localforage.iterate((value, key, iterationNumber) => {
+    await localforage.iterate((value) => {
       // keyは日付（YYYY-MM-DD）、valueはその日の記録の配列
       if (Array.isArray(value)) {
         allRecords.push(...value)
