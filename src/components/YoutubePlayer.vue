@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { YoutubeIframe } from '@vue-youtube/component'
-import { defineProps } from 'vue' // `defineProps` をインポート
 
 // props の定義
 // videoId を文字列型で必須として受け取る
