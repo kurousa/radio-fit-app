@@ -217,7 +217,7 @@ export class TimezoneService {
         timezone,
         offset,
         localTime: now,
-        utcTime: new Date(now.getTime() - (offset * 60 * 1000))
+        utcTime: new Date(now.getTime())
       }
     } catch (error) {
       return TimezoneErrorHandler.handleDetectionFailure(error as Error)
@@ -248,7 +248,7 @@ export class TimezoneService {
 
       const offset = this.getTimezoneOffset(date, timezone)
       const localTime = this.convertUTCToLocal(date.getTime(), timezone)
-      const utcTime = new Date(date.getTime() - (offset * 60 * 1000))
+      const utcTime = new Date(date.getTime())
 
       return {
         timezone,
