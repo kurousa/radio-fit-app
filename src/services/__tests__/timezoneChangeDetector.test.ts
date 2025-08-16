@@ -15,7 +15,7 @@ describe('TimezoneChangeDetector', () => {
 
   beforeEach(() => {
     // シングルトンインスタンスをリセット
-    ;(TimezoneChangeDetector as unknown).instance = null
+    ;(TimezoneChangeDetector as any).instance = null
 
     mockGetCurrentTimezoneInfo = vi.mocked(TimezoneService.getCurrentTimezoneInfo)
     mockGetCurrentTimezoneInfo.mockReturnValue({
