@@ -10,6 +10,7 @@ interface ToastNotification {
 }
 
 const toastNotifications = ref<ToastNotification[]>([])
+const toastTimeouts = new Map<number, ReturnType<typeof setTimeout>>()
 
 let nextId = 1
 
@@ -23,11 +24,16 @@ export function useToastNotifications() {
     const id = nextId++
     toastNotifications.value.push({ id, message, type, duration })
     if (duration > 0) {
-      setTimeout(() => removeToast(id), duration)
+      const timeoutId = setTimeout(() => removeToast(id), duration)
+      toastTimeouts.set(id, timeoutId)
     }
   }
 
   const removeToast = (id: number) => {
+    if (toastTimeouts.has(id)) {
+      clearTimeout(toastTimeouts.get(id)!)
+      toastTimeouts.delete(id)
+    }
     const index = toastNotifications.value.findIndex((n) => n.id === id)
     if (index > -1) {
       toastNotifications.value.splice(index, 1)
@@ -40,7 +46,6 @@ export function useToastNotifications() {
     removeToast,
   }
 }
-
 // --- Composable for Push Notification Settings ---
 const NOTIFICATION_SETTINGS_KEY = 'radio-fit-app-notification-settings'
 
@@ -81,10 +86,10 @@ export function useNotifications() {
       return
     }
 
-    saveSettings()
     if (newValue) {
       const permission = await notificationService.requestNotificationPermission()
       if (permission === 'granted') {
+        saveSettings()
         await notificationService.scheduleNotification(notificationTime.value)
         addToast(`通知を ${notificationTime.value} に設定しました`, 'info')
       } else {
@@ -94,6 +99,7 @@ export function useNotifications() {
         isEnabled.value = false // Revert
       }
     } else {
+      saveSettings()
       await notificationService.cancelNotification()
       addToast('通知をオフにしました', 'warning')
     }
