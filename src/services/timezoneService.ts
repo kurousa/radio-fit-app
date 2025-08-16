@@ -3,18 +3,7 @@
  * ブラウザのIntl APIを使用してタイムゾーン検出・変換機能を提供
  */
 
-export interface TimezoneInfo {
-  timezone: string // IANA タイムゾーン識別子 (例: "Asia/Tokyo")
-  offset: number // タイムゾーンオフセット (分単位)
-  localTime: Date // ローカル時刻
-  utcTime: Date // UTC時刻
-}
-
-export interface TimezoneError {
-  type: 'detection_failed' | 'invalid_timezone' | 'conversion_error'
-  message: string
-  fallbackAction: string
-}
+import type { TimezoneInfo, TimezoneError } from './types'
 
 export class TimezoneErrorHandler {
   /**

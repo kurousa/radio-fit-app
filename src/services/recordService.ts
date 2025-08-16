@@ -11,9 +11,12 @@ localforage.config({
 })
 
 export interface ExerciseRecord {
-  date: string // YYYY-MM-DD
+  date: string // YYYY-MM-DD (ローカル日付)
   type: 'first' | 'second' // 体操の種類
-  timestamp: number // 記録時のタイムスタンプ
+  timestamp: number // UTC タイムスタンプ
+  timezone?: string // タイムゾーン識別子 (例: "Asia/Tokyo")
+  timezoneOffset?: number // タイムゾーンオフセット (分単位)
+  localTimestamp?: number // ローカルタイムスタンプ
 }
 
 /**
@@ -67,5 +70,140 @@ export async function getRecordsByDate(date: string): Promise<ExerciseRecord[]> 
   } catch (error) {
     console.error(`日付 ${date} の記録取得に失敗しました:`, error)
     return []
+  }
+}
+/**
+ * 既存データとの互換性を保つためのマイグレーション関数
+ */
+
+/**
+ * 既存の記録データにタイムゾーン情報を追加する
+ * @param record - 既存の記録データ
+ * @param timezone - 適用するタイムゾーン（省略時は現在のタイムゾーン）
+ * @returns タイムゾーン情報が追加された記録データ
+ */
+export function migrateRecordToTimezoneAware(
+  record: ExerciseRecord,
+  timezone?: string
+): ExerciseRecord {
+  // 既にタイムゾーン情報がある場合はそのまま返す
+  if (record.timezone && record.timezoneOffset !== undefined && record.localTimestamp) {
+    return record
+  }
+
+  try {
+    // タイムゾーン情報を取得（省略時は現在のタイムゾーンを使用）
+    const targetTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    // 既存のタイムスタンプからタイムゾーン情報を計算
+    const utcDate = new Date(record.timestamp)
+
+    // タイムゾーンオフセットを計算
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: targetTimezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    })
+
+    const parts = formatter.formatToParts(utcDate)
+    const partsObj = parts.reduce((acc, part) => {
+      acc[part.type] = part.value
+      return acc
+    }, {} as Record<string, string>)
+
+    const localDate = new Date(
+      parseInt(partsObj.year),
+      parseInt(partsObj.month) - 1,
+      parseInt(partsObj.day),
+      parseInt(partsObj.hour),
+      parseInt(partsObj.minute),
+      parseInt(partsObj.second)
+    )
+
+    const timezoneOffset = Math.round((localDate.getTime() - utcDate.getTime()) / (1000 * 60))
+
+    return {
+      ...record,
+      timezone: targetTimezone,
+      timezoneOffset,
+      localTimestamp: localDate.getTime()
+    }
+  } catch (error) {
+    console.error('Failed to migrate record to timezone-aware:', error)
+    // エラー時は元の記録をそのまま返す
+    return record
+  }
+}
+
+/**
+ * 複数の記録データを一括でマイグレーションする
+ * @param records - 既存の記録データ配列
+ * @param timezone - 適用するタイムゾーン（省略時は現在のタイムゾーン）
+ * @returns タイムゾーン情報が追加された記録データ配列
+ */
+export function migrateRecordsToTimezoneAware(
+  records: ExerciseRecord[],
+  timezone?: string
+): ExerciseRecord[] {
+  return records.map(record => migrateRecordToTimezoneAware(record, timezone))
+}
+
+/**
+ * 記録データがタイムゾーン対応済みかどうかを判定する
+ * @param record - 判定する記録データ
+ * @returns タイムゾーン対応済みの場合true
+ */
+export function isTimezoneAwareRecord(record: ExerciseRecord): boolean {
+  return !!(record.timezone &&
+           record.timezoneOffset !== undefined &&
+           record.localTimestamp)
+}
+
+/**
+ * 全ての記録データを自動的にマイグレーションする
+ * 既存データとの互換性を保ちながら、タイムゾーン情報を追加
+ */
+export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
+  try {
+    console.log('Starting automatic migration of existing records...')
+
+    const allRecords = await getAllRecords()
+    let migratedCount = 0
+
+    // 日付ごとにグループ化された記録を処理
+    const recordsByDate: Record<string, ExerciseRecord[]> = {}
+
+    // 既存の記録を日付でグループ化
+    for (const record of allRecords) {
+      if (!recordsByDate[record.date]) {
+        recordsByDate[record.date] = []
+      }
+      recordsByDate[record.date].push(record)
+    }
+
+    // 各日付の記録をマイグレーション
+    for (const [date, records] of Object.entries(recordsByDate)) {
+      const migratedRecords = migrateRecordsToTimezoneAware(records)
+
+      // マイグレーションが必要だった記録があるかチェック
+      const needsMigration = records.some((record, index) =>
+        !isTimezoneAwareRecord(record) && isTimezoneAwareRecord(migratedRecords[index])
+      )
+
+      if (needsMigration) {
+        await localforage.setItem(date, migratedRecords)
+        migratedCount += migratedRecords.length
+      }
+    }
+
+    console.log(`Migration completed. ${migratedCount} records were migrated.`)
+  } catch (error) {
+    console.error('Failed to migrate existing records:', error)
+    throw new Error('Record migration failed')
   }
 }

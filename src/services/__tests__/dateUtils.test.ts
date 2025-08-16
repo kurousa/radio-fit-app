@@ -3,7 +3,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { DateUtils, type ExerciseRecord } from '../dateUtils'
+import { DateUtils } from '../dateUtils'
+import type { ExerciseRecord } from '../recordService'
 
 describe('DateUtils', () => {
   describe('isSameLocalDate', () => {

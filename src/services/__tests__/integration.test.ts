@@ -4,7 +4,8 @@
 
 import { describe, it, expect } from 'vitest'
 import { TimezoneService } from '../timezoneService'
-import { DateUtils, type ExerciseRecord } from '../dateUtils'
+import { DateUtils } from '../dateUtils'
+import type { ExerciseRecord } from '../recordService'
 
 describe('Timezone Services Integration', () => {
   it('should work together for timezone-aware operations', () => {

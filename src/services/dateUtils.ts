@@ -4,22 +4,8 @@
  */
 
 import { TimezoneService } from './timezoneService'
-
-// 将来のタスクで拡張される ExerciseRecord インターフェース
-export interface ExerciseRecord {
-  date: string // YYYY-MM-DD (ローカル日付)
-  type: 'first' | 'second'
-  timestamp: number // UTC タイムスタンプ
-  timezone?: string // タイムゾーン識別子 (例: "Asia/Tokyo")
-  timezoneOffset?: number // タイムゾーンオフセット (分単位)
-  localTimestamp?: number // ローカルタイムスタンプ
-}
-
-export interface CalendarDate {
-  date: Date
-  records: ExerciseRecord[]
-  localDateString: string
-}
+import type { ExerciseRecord } from './recordService'
+import type { CalendarDate } from './types'
 
 export class DateUtils {
   /**
