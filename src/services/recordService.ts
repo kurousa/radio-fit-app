@@ -160,8 +160,8 @@ export async function getRecordsWithTimezoneConversion(
         const localDate = TimezoneService.convertUTCToLocal(record.timestamp, timezone)
         const localDateString = TimezoneService.formatLocalDate(localDate, timezone)
 
-        // タイムゾーン情報を更新
-        const timezoneInfo = TimezoneService.getCurrentTimezoneInfo()
+        // 指定されたタイムゾーンの情報を取得
+        const timezoneInfo = TimezoneService.getTimezoneInfo(timezone, new Date(record.timestamp))
 
         return {
           ...record,

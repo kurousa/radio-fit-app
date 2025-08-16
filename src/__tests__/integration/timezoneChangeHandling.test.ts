@@ -23,6 +23,7 @@ vi.mock('localforage', () => ({
 vi.mock('../../services/timezoneService')
 
 const mockGetCurrentTimezoneInfo = vi.mocked(TimezoneService.getCurrentTimezoneInfo)
+const mockGetTimezoneInfo = vi.mocked(TimezoneService.getTimezoneInfo)
 const mockConvertUTCToLocal = vi.mocked(TimezoneService.convertUTCToLocal)
 const mockFormatLocalDate = vi.mocked(TimezoneService.formatLocalDate)
 
@@ -55,6 +56,40 @@ describe('Timezone Change Handling Integration Tests', () => {
       offset: -540,
       localTime: new Date('2025-01-15T09:30:00+09:00'),
       utcTime: new Date('2025-01-15T00:30:00Z')
+    })
+
+    mockGetTimezoneInfo.mockImplementation((timezone: string, referenceDate?: Date) => {
+      const date = referenceDate || new Date()
+
+      if (timezone === 'Asia/Tokyo') {
+        return {
+          timezone: 'Asia/Tokyo',
+          offset: 540, // UTC+9 = +540分
+          localTime: new Date(date.getTime() + (9 * 60 * 60 * 1000)),
+          utcTime: date
+        }
+      } else if (timezone === 'America/New_York') {
+        return {
+          timezone: 'America/New_York',
+          offset: -300, // UTC-5 = -300分
+          localTime: new Date(date.getTime() - (5 * 60 * 60 * 1000)),
+          utcTime: date
+        }
+      } else if (timezone === 'Europe/London') {
+        return {
+          timezone: 'Europe/London',
+          offset: 0, // UTC = 0分
+          localTime: date,
+          utcTime: date
+        }
+      }
+
+      return {
+        timezone: 'UTC',
+        offset: 0,
+        localTime: date,
+        utcTime: date
+      }
     })
 
     mockConvertUTCToLocal.mockImplementation((utcTimestamp: number, timezone?: string) => {

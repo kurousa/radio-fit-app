@@ -225,6 +225,51 @@ export class TimezoneService {
   }
 
   /**
+   * 指定されたタイムゾーンの情報を取得
+   * @param timezone - 取得したいタイムゾーン（IANA識別子）
+   * @param referenceDate - 基準日時（省略時は現在日時）
+   * @returns 指定タイムゾーンの情報
+   */
+  static getTimezoneInfo(timezone: string, referenceDate?: Date): TimezoneInfo {
+    try {
+      const date = referenceDate || new Date()
+
+      // タイムゾーンが有効かチェック
+      if (!this.isValidTimezone(timezone)) {
+        TimezoneErrorHandler.handleInvalidTimezone(timezone, 'タイムゾーン情報取得')
+        // フォールバック: UTCを返す
+        return {
+          timezone: 'UTC',
+          offset: 0,
+          localTime: date,
+          utcTime: date
+        }
+      }
+
+      const offset = this.getTimezoneOffset(date, timezone)
+      const localTime = this.convertUTCToLocal(date.getTime(), timezone)
+      const utcTime = new Date(date.getTime() - (offset * 60 * 1000))
+
+      return {
+        timezone,
+        offset,
+        localTime,
+        utcTime
+      }
+    } catch (error) {
+      TimezoneErrorHandler.handleConversionError('タイムゾーン情報取得', error as Error)
+      // フォールバック: UTCを返す
+      const date = referenceDate || new Date()
+      return {
+        timezone: 'UTC',
+        offset: 0,
+        localTime: date,
+        utcTime: date
+      }
+    }
+  }
+
+  /**
    * UTCタイムスタンプをローカル時刻に変換
    */
   static convertUTCToLocal(utcTimestamp: number, targetTimezone?: string): Date {
@@ -343,37 +388,30 @@ export class TimezoneService {
    */
   private static getTimezoneOffset(date: Date, timezone: string): number {
     try {
-      // UTCでの時刻
-      const utcTime = date.getTime()
-
-      // 指定タイムゾーンでの時刻を取得
-      const formatter = new Intl.DateTimeFormat('en-CA', {
+      // 標準的で確実な方法：Intl.DateTimeFormatを使用してオフセットを直接取得
+      const formatter = new Intl.DateTimeFormat('en', {
         timeZone: timezone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+        timeZoneName: 'longOffset'
       })
 
       const parts = formatter.formatToParts(date)
-      const partsObj = parts.reduce((acc, part) => {
-        acc[part.type] = part.value
-        return acc
-      }, {} as Record<string, string>)
+      const offsetPart = parts.find(part => part.type === 'timeZoneName')
 
-      const localTime = new Date(
-        parseInt(partsObj.year),
-        parseInt(partsObj.month) - 1,
-        parseInt(partsObj.day),
-        parseInt(partsObj.hour),
-        parseInt(partsObj.minute),
-        parseInt(partsObj.second)
-      ).getTime()
+      if (offsetPart && offsetPart.value) {
+        // "+09:00" や "-05:00" の形式をパース
+        const match = offsetPart.value.match(/([+-])(\d{2}):(\d{2})/)
+        if (match) {
+          const sign = match[1] === '+' ? 1 : -1
+          const hours = parseInt(match[2])
+          const minutes = parseInt(match[3])
+          return sign * (hours * 60 + minutes)
+        }
+      }
 
-      // オフセットを分単位で計算
+      // フォールバック: 従来の方法
+      const utcTime = date.getTime()
+      const localTimeString = date.toLocaleString('sv-SE', { timeZone: timezone })
+      const localTime = new Date(localTimeString).getTime()
       return Math.round((localTime - utcTime) / (1000 * 60))
     } catch (error) {
       console.error('Failed to get timezone offset:', error)

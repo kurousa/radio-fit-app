@@ -5,6 +5,7 @@ import {
   isTimezoneAwareRecord,
   recordExerciseWithTimezone,
   getRecordsWithTimezoneConversion,
+  getAllRecords,
   type ExerciseRecord
 } from '../recordService'
 
@@ -121,6 +122,15 @@ describe('RecordService Migration Functions', () => {
   })
 })
 
+// Mock getAllRecords function
+vi.mock('../recordService', async () => {
+  const actual = await vi.importActual('../recordService')
+  return {
+    ...actual,
+    getAllRecords: vi.fn()
+  }
+})
+
 describe('Timezone-Aware Record Functions', () => {
   beforeEach(() => {
     // Clear any existing mocks
@@ -158,6 +168,42 @@ describe('Timezone-Aware Record Functions', () => {
       // This test verifies the function accepts timezone parameter
       const records = await getRecordsWithTimezoneConversion('America/New_York')
       expect(Array.isArray(records)).toBe(true)
+    })
+
+    it('should use correct timezone offset for target timezone', async () => {
+      // Mock a record with timezone information
+      const mockRecord = {
+        date: '2025-01-15',
+        type: 'first' as const,
+        timestamp: new Date('2025-01-15T12:00:00Z').getTime(),
+        timezone: 'Asia/Tokyo',
+        timezoneOffset: -540,
+        localTimestamp: new Date('2025-01-15T21:00:00').getTime()
+      }
+
+      // Mock getAllRecords to return our test record
+      vi.mocked(getAllRecords).mockResolvedValue([mockRecord])
+
+      // Convert to New York timezone
+      const records = await getRecordsWithTimezoneConversion('America/New_York')
+
+      expect(records.length).toBeGreaterThan(0)
+
+      // Find the record that was converted (not the migrated one)
+      const convertedRecord = records.find(r => r.timezone === 'America/New_York')
+      expect(convertedRecord).toBeDefined()
+
+      if (convertedRecord) {
+        // Verify the timezone was updated
+        expect(convertedRecord.timezone).toBe('America/New_York')
+
+        // Verify the offset is for New York timezone (not the original Tokyo offset)
+        // New York in January is UTC-5 = -300 minutes
+        expect(convertedRecord.timezoneOffset).toBe(-300)
+
+        // Verify the date was converted to New York timezone
+        expect(convertedRecord.date).toBe('2025-01-14') // Should be previous day due to timezone difference
+      }
     })
   })
 })
