@@ -31,13 +31,13 @@
 
 - [x] 5. ProfileViewのカレンダー表示をタイムゾーン対応に更新
 
-
   - updateCalendarAttributes関数を更新し、ユーザーの現在タイムゾーンで記録を表示
   - カレンダー属性生成時にタイムゾーン変換を適用
   - ポップオーバーにローカル時刻情報を表示
   - _要件: 2.1, 2.3_
 
-- [ ] 6. HomeViewの連続日数計算をタイムゾーン対応に更新
+- [x] 6. HomeViewの連続日数計算をタイムゾーン対応に更新
+
 
   - calculateStreak関数を更新し、タイムゾーンを考慮した日付比較を実装
   - DateUtilsのcalculateStreakWithTimezone関数を使用
