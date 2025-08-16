@@ -67,322 +67,192 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { getAllRecords, getRecordsWithTimezoneConversion } from '../services/recordService' // 記録サービスをインポート
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { getAllRecords, getRecordsWithTimezoneConversion } from '../services/recordService'
 import type { ExerciseRecord } from '../services/recordService'
 import { TimezoneService } from '../services/timezoneService'
 import { DateUtils } from '../services/dateUtils'
 import { timezoneChangeDetector } from '../services/timezoneChangeDetector'
+import { useNotifications } from '@/composables/useNotifications'
 
-export default defineComponent({
-  name: 'ProfileView',
-  setup() {
-    // 全ての体操記録を格納するリアクティブ変数
-    const allRecords = ref<ExerciseRecord[]>([])
+// Notifications
+const { isEnabled: notificationsEnabled, notificationTime } = useNotifications()
 
-    // 通知設定の状態
-    const notificationsEnabled = ref(false)
-    // 通知時刻の状態
-    const notificationTime = ref('06:30')
-    // サポートメールアドレス
-    const supportEmail = 'support@example.com'
-
-    // 現在のタイムゾーンを追跡
-    const currentTimezone = ref<string>('')
-
-    // タイムゾーン変更検出のアンサブスクライブ関数
-    let unsubscribeTimezoneChange: (() => void) | null = null
-
-    // V-Calendarのための属性（ハイライト表示など）
-    const calendarAttributes = ref<unknown>([]) // V-Calendarの属性配列
-
-    // 現在の日付を取得
-    const today = new Date()
-    const currentMonth = today.getMonth() + 1 // 月は0-indexedなので+1
-    const currentYear = today.getFullYear()
-
-    // 当月の初期ページ設定
-    const calendarInitialPageCurrentMonth = ref({
-      month: currentMonth,
-      year: currentYear,
-    })
-
-    // 前月の初期ページ設定
-    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1 // 1月なら前年は12月
-    const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear // 1月なら年を1つ減らす
-    const calendarInitialPagePrevMonth = ref({
-      month: prevMonth,
-      year: prevYear,
-    })
-
-    /**
-     * 計算プロパティ：総実施回数
-     * allRecords の長さに基づいて計算される
-     */
-    const totalExercises = computed(() => allRecords.value.length)
-
-    /**
-     * 計算プロパティ：最長連続日数
-     * タイムゾーンを考慮した日付計算で最長の連続日数を計算する
-     */
-    const longestStreak = computed(() => {
-      if (allRecords.value.length === 0) return 0
-
-      try {
-        // DateUtilsのタイムゾーン対応連続日数計算を使用
-        return DateUtils.calculateStreakWithTimezone(allRecords.value)
-      } catch (error) {
-        console.error('タイムゾーン対応連続日数計算に失敗しました:', error)
-
-        // フォールバック: 既存の方法で計算
-        let maxStreak = 0
-        let currentStreak = 0
-
-        const sortedRecords = [...allRecords.value].sort((a, b) => {
-          return new Date(a.date).getTime() - new Date(b.date).getTime()
-        })
-
-        const uniqueDates = Array.from(new Set(sortedRecords.map((record) => record.date))).sort()
-
-        for (let i = 0; i < uniqueDates.length; i++) {
-          const currentDate = new Date(uniqueDates[i] + 'T12:00:00')
-
-          if (i === 0) {
-            currentStreak = 1
-          } else {
-            const prevDate = new Date(uniqueDates[i - 1] + 'T12:00:00')
-            const diffTime = Math.abs(currentDate.getTime() - prevDate.getTime())
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-            if (diffDays === 1) {
-              currentStreak++
-            } else {
-              currentStreak = 1
-            }
-          }
-          maxStreak = Math.max(maxStreak, currentStreak)
-        }
-        return maxStreak
-      }
-    })
-
-    /**
-     * 計算プロパティ：モチベーションメッセージ
-     * 総実施回数や最長連続日数に応じてメッセージを返す
-     */
-    const motivationalMessage = computed(() => {
-      if (totalExercises.value === 0) {
-        return 'まだ記録がありません。最初のラジオ体操をしてみましょう！'
-      } else if (totalExercises.value < 10) {
-        return `素晴らしいスタートです！もう${totalExercises.value}回体操しましたね。`
-      } else if (longestStreak.value >= 7) {
-        return `1週間以上連続！健康習慣が身についてきましたね！この調子で頑張りましょう！`
-      }
-      return '継続は力なり！毎日の体操で健康を維持しましょう。'
-    })
-
-    /**
-     * IndexedDBから記録をロードし、allRecordsを更新する
-     * タイムゾーン変換を適用して現在のタイムゾーンで表示
-     */
-    const loadRecords = async () => {
-      try {
-        // ユーザーの現在タイムゾーンで記録を取得
-        allRecords.value = await getRecordsWithTimezoneConversion()
-        console.log('タイムゾーン対応記録がロードされました:', allRecords.value)
-      } catch (error) {
-        console.error('記録の読み込みに失敗しました:', error)
-        // フォールバック: 既存の方法で記録を取得
-        allRecords.value = await getAllRecords()
-      }
-    }
-
-    /**
-     * allRecords の変更を監視し、カレンダー属性を更新する
-     * タイムゾーン対応でユーザーの現在タイムゾーンで記録を表示
-     */
-    const updateCalendarAttributes = () => {
-      try {
-        // ユーザーの現在タイムゾーン情報を取得
-        const currentTimezone = TimezoneService.getCurrentTimezoneInfo().timezone
-
-        // DateUtilsを使用してカレンダー表示用に記録を変換
-        const calendarDates = DateUtils.convertRecordsForCalendar(allRecords.value, currentTimezone)
-
-        const attributes = calendarDates.map((calendarDate) => {
-          const { date, records, localDateString } = calendarDate
-
-          // その日の記録の詳細情報を生成
-          const recordDetails = records.map(record => {
-            const exerciseType = record.type === 'first' ? 'ラジオ体操第一' : 'ラジオ体操第二'
-
-            // ローカル時刻情報を表示用に生成
-            let timeInfo = ''
-            if (record.timezone) {
-              const utcTime = new Date(record.timestamp)
-              const timeString = utcTime.toLocaleTimeString('ja-JP', {
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: record.timezone
-              })
-              const timezoneAbbr = record.timezone.split('/').pop() || record.timezone
-              timeInfo = ` (${timeString} ${timezoneAbbr})`
-            } else if (record.timestamp) {
-              // フォールバック: UTCタイムスタンプから現在タイムゾーンで表示
-              const utcTime = new Date(record.timestamp)
-              const localTime = TimezoneService.convertUTCToLocal(record.timestamp, currentTimezone)
-              const timeString = localTime.toLocaleTimeString('ja-JP', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-              timeInfo = ` (${timeString})`
-            }
-
-            return `${exerciseType}${timeInfo}`
-          }).join('\n')
-
-          // 複数記録がある場合の表示
-          const recordCount = records.length
-          const popoverLabel = recordCount === 1
-            ? recordDetails
-            : `${recordCount}回実施\n${recordDetails}`
-
-          return {
-            key: `recorded-${localDateString}`, // 各属性にユニークなキーを設定
-            dates: date, // 対象の日付（ユーザーの現在タイムゾーンで調整済み）
-            highlight: {
-              color: 'green', // V-Calendarが持つ色名 'green'
-              fillMode: 'solid' as const,
-              class: 'recorded-date-highlight', // カスタムCSSクラス
-            },
-            popover: {
-              // ポップオーバー（日付タップ時に表示）
-              label: popoverLabel,
-              visibility: 'hover' as const
-            },
-          }
-        })
-
-        // calendarAttributes を更新
-        calendarAttributes.value = attributes
-        console.log(`カレンダー属性が更新されました (${currentTimezone}):`, calendarAttributes.value)
-      } catch (error) {
-        console.error('カレンダー属性の更新に失敗しました:', error)
-
-        // フォールバック: 既存の方法でカレンダー属性を生成
-        const recordedDates = allRecords.value.map((record) => record.date)
-        const uniqueRecordedDates = [...new Set(recordedDates)]
-
-        const fallbackAttributes = uniqueRecordedDates.map((dateStr) => {
-          const date = new Date(dateStr + 'T12:00:00') // 正午を指定して日付境界問題を回避
-
-          return {
-            key: `recorded-${dateStr}`,
-            dates: date,
-            highlight: {
-              color: 'green',
-              fillMode: 'solid' as const,
-              class: 'recorded-date-highlight',
-            },
-            popover: {
-              label: 'ラジオ体操実施済み！',
-            },
-          }
-        })
-
-        calendarAttributes.value = fallbackAttributes
-        console.log('フォールバック方式でカレンダー属性を更新しました:', calendarAttributes.value)
-      }
-    }
-
-    /**
-     * タイムゾーン変更時の処理
-     */
-    const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
-      console.log(`ProfileView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
-
-      // 現在のタイムゾーンを更新
-      currentTimezone.value = newTimezone
-
-      // 記録を再読み込みしてカレンダー表示を更新
-      await loadRecords()
-
-      console.log('ProfileView: カレンダー表示が新しいタイムゾーンで更新されました')
-    }
-
-    /**
-     * Vueコンポーネントがマウントされた時に実行されるライフサイクルフック
-     */
-    onMounted(async () => {
-      // 初期タイムゾーンを設定
-      try {
-        currentTimezone.value = timezoneChangeDetector.getCurrentTimezone()
-      } catch (error) {
-        console.error('初期タイムゾーン設定に失敗しました:', error)
-      }
-
-      // 記録の初期ロード
-      await loadRecords()
-
-      // タイムゾーン変更検出を開始
-      if (!timezoneChangeDetector.isMonitoring()) {
-        timezoneChangeDetector.startMonitoring()
-      }
-
-      // タイムゾーン変更時のコールバックを登録
-      unsubscribeTimezoneChange = timezoneChangeDetector.onTimezoneChange(handleTimezoneChange)
-
-      // ここで、IndexedDBなどから保存された通知設定をロードするロジックを追加することも可能
-      // 例: notificationsEnabled.value = (await localforage.getItem('notificationsEnabled')) || false;
-      // 例: notificationTime.value = (await localforage.getItem('notificationTime')) || '06:30';
-    })
-
-    /**
-     * コンポーネントがアンマウントされる時の処理
-     */
-    onUnmounted(() => {
-      // タイムゾーン変更検出のコールバックを解除
-      if (unsubscribeTimezoneChange) {
-        unsubscribeTimezoneChange()
-        unsubscribeTimezoneChange = null
-      }
-    })
-
-    /**
-     * allRecords の変更を監視し、カレンダーの表示を自動更新する
-     * deep: true は配列内のオブジェクトの変更も検知するため（今回の場合は不要だが安全のため）
-     */
-    watch(
-      allRecords,
-      () => {
-        updateCalendarAttributes()
-      },
-      { deep: true },
-    )
-
-    // 通知設定や時刻の変更を監視し、IndexedDBに保存するロジック（後ほど実装）
-    // watch(notificationsEnabled, (newValue) => {
-    //   localforage.setItem('notificationsEnabled', newValue);
-    // });
-    // watch(notificationTime, (newValue) => {
-    //   localforage.setItem('notificationTime', newValue);
-    // });
-
-    return {
-      allRecords,
-      totalExercises,
-      longestStreak,
-      motivationalMessage,
-      notificationsEnabled,
-      notificationTime,
-      supportEmail,
-      calendarAttributes,
-      calendarInitialPageCurrentMonth,
-      calendarInitialPagePrevMonth,
-    }
-  },
+// All other existing setup logic
+const allRecords = ref<ExerciseRecord[]>([])
+const supportEmail = 'support@example.com'
+const currentTimezone = ref<string>('')
+let unsubscribeTimezoneChange: (() => void) | null = null
+const calendarAttributes = ref<unknown>([])
+const today = new Date()
+const currentMonth = today.getMonth() + 1
+const currentYear = today.getFullYear()
+const calendarInitialPageCurrentMonth = ref({
+  month: currentMonth,
+  year: currentYear,
 })
+const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1
+const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear
+const calendarInitialPagePrevMonth = ref({
+  month: prevMonth,
+  year: prevYear,
+})
+const totalExercises = computed(() => allRecords.value.length)
+const longestStreak = computed(() => {
+  if (allRecords.value.length === 0) return 0
+  try {
+    return DateUtils.calculateStreakWithTimezone(allRecords.value)
+  } catch (error) {
+    console.error('タイムゾーン対応連続日数計算に失敗しました:', error)
+    let maxStreak = 0
+    let currentStreak = 0
+    const sortedRecords = [...allRecords.value].sort((a, b) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime()
+    })
+    const uniqueDates = Array.from(new Set(sortedRecords.map((record) => record.date))).sort()
+    for (let i = 0; i < uniqueDates.length; i++) {
+      const currentDate = new Date(uniqueDates[i] + 'T12:00:00')
+      if (i === 0) {
+        currentStreak = 1
+      } else {
+        const prevDate = new Date(uniqueDates[i - 1] + 'T12:00:00')
+        const diffTime = Math.abs(currentDate.getTime() - prevDate.getTime())
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        if (diffDays === 1) {
+          currentStreak++
+        } else {
+          currentStreak = 1
+        }
+      }
+      maxStreak = Math.max(maxStreak, currentStreak)
+    }
+    return maxStreak
+  }
+})
+const motivationalMessage = computed(() => {
+  if (totalExercises.value === 0) {
+    return 'まだ記録がありません。最初のラジオ体操をしてみましょう！'
+  } else if (totalExercises.value < 10) {
+    return `素晴らしいスタートです！もう${totalExercises.value}回体操しましたね。`
+  } else if (longestStreak.value >= 7) {
+    return `1週間以上連続！健康習慣が身についてきましたね！この調子で頑張りましょう！`
+  }
+  return '継続は力なり！毎日の体操で健康を維持しましょう。'
+})
+const loadRecords = async () => {
+  try {
+    allRecords.value = await getRecordsWithTimezoneConversion()
+    console.log('タイムゾーン対応記録がロードされました:', allRecords.value)
+  } catch (error) {
+    console.error('記録の読み込みに失敗しました:', error)
+    allRecords.value = await getAllRecords()
+  }
+}
+const updateCalendarAttributes = () => {
+  try {
+    const currentTimezone = TimezoneService.getCurrentTimezoneInfo().timezone
+    const calendarDates = DateUtils.convertRecordsForCalendar(allRecords.value, currentTimezone)
+    const attributes = calendarDates.map((calendarDate) => {
+      const { date, records, localDateString } = calendarDate
+      const recordDetails = records
+        .map((record) => {
+          const exerciseType = record.type === 'first' ? 'ラジオ体操第一' : 'ラジオ体操第二'
+          let timeInfo = ''
+          if (record.timezone) {
+            const utcTime = new Date(record.timestamp)
+            const timeString = utcTime.toLocaleTimeString('ja-JP', {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: record.timezone,
+            })
+            const timezoneAbbr = record.timezone.split('/').pop() || record.timezone
+            timeInfo = ` (${timeString} ${timezoneAbbr})`
+          } else if (record.timestamp) {
+            const utcTime = new Date(record.timestamp)
+            const localTime = TimezoneService.convertUTCToLocal(record.timestamp, currentTimezone)
+            const timeString = localTime.toLocaleTimeString('ja-JP', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            timeInfo = ` (${timeString})`
+          }
+          return `${exerciseType}${timeInfo}`
+        })
+        .join('\n')
+      const recordCount = records.length
+      const popoverLabel =
+        recordCount === 1 ? recordDetails : `${recordCount}回実施\n${recordDetails}`
+      return {
+        key: `recorded-${localDateString}`,
+        dates: date,
+        highlight: {
+          color: 'green',
+          fillMode: 'solid' as const,
+          class: 'recorded-date-highlight',
+        },
+        popover: {
+          label: popoverLabel,
+          visibility: 'hover' as const,
+        },
+      }
+    })
+    calendarAttributes.value = attributes
+    console.log(`カレンダー属性が更新されました (${currentTimezone}):`, calendarAttributes.value)
+  } catch (error) {
+    console.error('カレンダー属性の更新に失敗しました:', error)
+    const recordedDates = allRecords.value.map((record) => record.date)
+    const uniqueRecordedDates = [...new Set(recordedDates)]
+    const fallbackAttributes = uniqueRecordedDates.map((dateStr) => {
+      const date = new Date(dateStr + 'T12:00:00')
+      return {
+        key: `recorded-${dateStr}`,
+        dates: date,
+        highlight: {
+          color: 'green',
+          fillMode: 'solid' as const,
+          class: 'recorded-date-highlight',
+        },
+        popover: {
+          label: 'ラジオ体操実施済み！',
+        },
+      }
+    })
+    calendarAttributes.value = fallbackAttributes
+    console.log('フォールバック方式でカレンダー属性を更新しました:', calendarAttributes.value)
+  }
+}
+const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
+  console.log(`ProfileView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
+  currentTimezone.value = newTimezone
+  await loadRecords()
+  console.log('ProfileView: カレンダー表示が新しいタイムゾーンで更新されました')
+}
+onMounted(async () => {
+  try {
+    currentTimezone.value = timezoneChangeDetector.getCurrentTimezone()
+  } catch (error) {
+    console.error('初期タイムゾーン設定に失敗しました:', error)
+  }
+  await loadRecords()
+  if (!timezoneChangeDetector.isMonitoring()) {
+    timezoneChangeDetector.startMonitoring()
+  }
+  unsubscribeTimezoneChange = timezoneChangeDetector.onTimezoneChange(handleTimezoneChange)
+})
+onUnmounted(() => {
+  if (unsubscribeTimezoneChange) {
+    unsubscribeTimezoneChange()
+    unsubscribeTimezoneChange = null
+  }
+})
+watch(
+  allRecords,
+  () => {
+    updateCalendarAttributes()
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>

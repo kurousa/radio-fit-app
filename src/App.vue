@@ -21,7 +21,13 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import NotificationToast from './components/NotificationToast.vue'
+import { registerServiceWorker } from '@/services/notificationService'
+
+onMounted(() => {
+  registerServiceWorker()
+})
 </script>
 
 <style>
