@@ -40,9 +40,13 @@
 </template>
 
 <script setup lang="ts">
-import { useNotifications } from '../composables/useNotifications'
+import { ref } from 'vue'
 
-const { notifications, removeNotification } = useNotifications()
+// This is a placeholder. A real implementation would use a dedicated toast notification composable.
+const notifications = ref<any[]>([])
+const removeNotification = (id: number) => {
+  notifications.value = notifications.value.filter((n) => n.id !== id)
+}
 </script>
 
 <style scoped>

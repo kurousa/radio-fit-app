@@ -1,0 +1,17 @@
+{
+  "feature_name": "functional-notifications",
+  "description": "現在UIのみ実装されている通知機能を動作するようにしちあ",
+  "timestamp": "2025-08-17T00:00:00.000Z",
+  "updated_at": "2025-08-17T15:00:00.000Z",
+  "phases": {
+    "requirements": "approved",
+    "design": "approved",
+    "tasks": "generated"
+  },
+  "approvals": {
+    "requirements": true,
+    "design": true,
+    "tasks": true
+  },
+  "ready_for_implementation": true
+}
