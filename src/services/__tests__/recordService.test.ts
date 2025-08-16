@@ -21,8 +21,7 @@ describe('RecordService Migration Functions', () => {
     type: 'first',
     timestamp: 1705123456789,
     timezone: 'Asia/Tokyo',
-    timezoneOffset: -540,
-    localTimestamp: 1705155456789
+    timezoneOffset: -540
   }
 
   describe('isTimezoneAwareRecord', () => {
@@ -53,7 +52,6 @@ describe('RecordService Migration Functions', () => {
       expect(migrated.timestamp).toBe(mockOldRecord.timestamp)
       expect(migrated.timezone).toBe('Asia/Tokyo')
       expect(typeof migrated.timezoneOffset).toBe('number')
-      expect(typeof migrated.localTimestamp).toBe('number')
     })
 
     it('should return existing timezone-aware records unchanged', () => {
@@ -67,7 +65,6 @@ describe('RecordService Migration Functions', () => {
 
       expect(migrated.timezone).toBeDefined()
       expect(typeof migrated.timezoneOffset).toBe('number')
-      expect(typeof migrated.localTimestamp).toBe('number')
     })
 
     it('should handle errors gracefully', () => {

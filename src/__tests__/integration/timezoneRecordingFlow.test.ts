@@ -288,8 +288,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         date: '2025-01-10',
         type: 'first',
         timezone: expect.any(String),
-        timezoneOffset: expect.any(Number),
-        localTimestamp: expect.any(Number)
+        timezoneOffset: expect.any(Number)
       })
     })
 

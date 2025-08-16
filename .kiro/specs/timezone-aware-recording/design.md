@@ -40,8 +40,7 @@ export interface ExerciseRecord {
   type: 'first' | 'second'
   timestamp: number // UTC タイムスタンプ
   timezone: string // タイムゾーン識別子 (例: "Asia/Tokyo")
-  timezoneOffset: number // タイムゾーンオフセット (分単位)
-  localTimestamp: number // ローカルタイムスタンプ
+  timezoneOffset: number // タイムゾーンオフセット (分単位、パフォーマンス用キャッシュ)
 }
 ```
 
@@ -116,8 +115,7 @@ export async function getRecordsWithTimezoneConversion(
   type: "first",
   timestamp: 1705123456789, // UTC タイムスタンプ
   timezone: "Asia/Tokyo", // IANA タイムゾーン識別子
-  timezoneOffset: -540, // JST は UTC+9時間 = -540分
-  localTimestamp: 1705155856789 // ローカルタイムスタンプ (timestamp + 32400000)
+  timezoneOffset: -540 // JST は UTC+9時間 = -540分（パフォーマンス用キャッシュ）
 }
 ```
 

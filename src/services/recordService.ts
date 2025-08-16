@@ -16,8 +16,7 @@ export interface ExerciseRecord {
   type: 'first' | 'second' // 体操の種類
   timestamp: number // UTC タイムスタンプ
   timezone?: string // タイムゾーン識別子 (例: "Asia/Tokyo")
-  timezoneOffset?: number // タイムゾーンオフセット (分単位)
-  localTimestamp?: number // ローカルタイムスタンプ
+  timezoneOffset?: number // タイムゾーンオフセット (分単位、パフォーマンス用キャッシュ)
 }
 
 /**
@@ -62,17 +61,13 @@ export async function recordExerciseWithTimezone(
     // ローカル日付文字列を生成
     const localDateString = TimezoneService.formatLocalDate(recordDate, timezoneInfo.timezone)
 
-    // ローカルタイムスタンプを計算
-    const localTimestamp = recordDate.getTime() + (timezoneInfo.offset * 60 * 1000)
-
     // タイムゾーン対応の記録データを作成
     const record: ExerciseRecord = {
       date: localDateString,
       type,
       timestamp: utcTimestamp,
       timezone: timezoneInfo.timezone,
-      timezoneOffset: timezoneInfo.offset,
-      localTimestamp
+      timezoneOffset: timezoneInfo.offset
     }
 
     // 既存の記録を取得
@@ -128,8 +123,7 @@ export async function getRecordsWithTimezoneConversion(
           ...record,
           date: localDateString,
           timezone: timezone,
-          timezoneOffset: timezoneInfo.offset,
-          localTimestamp: localDate.getTime()
+          timezoneOffset: timezoneInfo.offset
         }
       } catch (error) {
         console.error(`記録の変換に失敗しました (ID: ${record.date}-${record.type}):`, error)
@@ -162,7 +156,7 @@ export function migrateRecordToTimezoneAware(
   timezone?: string
 ): ExerciseRecord {
   // 既にタイムゾーン情報がある場合はそのまま返す
-  if (record.timezone && record.timezoneOffset !== undefined && record.localTimestamp) {
+  if (record.timezone && record.timezoneOffset !== undefined) {
     return record
   }
 
@@ -213,8 +207,7 @@ export function migrateRecordToTimezoneAware(
     return {
       ...record,
       timezone: targetTimezone,
-      timezoneOffset,
-      localTimestamp: localDate.getTime()
+      timezoneOffset
     }
   } catch (error) {
     console.error('Failed to migrate record to timezone-aware:', error)
@@ -243,8 +236,7 @@ export function migrateRecordsToTimezoneAware(
  */
 export function isTimezoneAwareRecord(record: ExerciseRecord): boolean {
   return !!(record.timezone &&
-           record.timezoneOffset !== undefined &&
-           record.localTimestamp)
+           record.timezoneOffset !== undefined)
 }
 
 /**

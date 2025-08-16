@@ -171,24 +171,21 @@ describe('DateUtils', () => {
           type: 'first',
           timestamp: now.getTime(),
           timezone: 'Asia/Tokyo',
-          timezoneOffset: -540,
-          localTimestamp: now.getTime() + (9 * 60 * 60 * 1000)
+          timezoneOffset: -540
         },
         {
           date: yesterday,
           type: 'first',
           timestamp: now.getTime() - 24 * 60 * 60 * 1000,
           timezone: 'America/New_York',
-          timezoneOffset: 300,
-          localTimestamp: now.getTime() - 24 * 60 * 60 * 1000 - (5 * 60 * 60 * 1000)
+          timezoneOffset: 300
         },
         {
           date: twoDaysAgo,
           type: 'first',
           timestamp: now.getTime() - 2 * 24 * 60 * 60 * 1000,
           timezone: 'Europe/London',
-          timezoneOffset: 0,
-          localTimestamp: now.getTime() - 2 * 24 * 60 * 60 * 1000
+          timezoneOffset: 0
         }
       ]
 
@@ -207,16 +204,14 @@ describe('DateUtils', () => {
           type: 'first',
           timestamp: baseTime,
           timezone: 'Asia/Tokyo',
-          timezoneOffset: -540,
-          localTimestamp: baseTime + (9 * 60 * 60 * 1000)
+          timezoneOffset: -540
         },
         {
           date: '2025-01-15',
           type: 'second',
           timestamp: baseTime + 3600000, // 1時間後
           timezone: 'America/New_York',
-          timezoneOffset: 300,
-          localTimestamp: baseTime + 3600000 - (5 * 60 * 60 * 1000)
+          timezoneOffset: 300
         }
       ]
 
@@ -290,8 +285,7 @@ describe('DateUtils', () => {
           type: i % 2 === 0 ? 'first' : 'second',
           timestamp: date.getTime(),
           timezone: 'Asia/Tokyo',
-          timezoneOffset: -540,
-          localTimestamp: date.getTime() + (9 * 60 * 60 * 1000)
+          timezoneOffset: -540
         })
       }
 

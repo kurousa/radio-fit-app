@@ -109,12 +109,8 @@ export class DateUtils {
     for (const record of records) {
       let localDateStr: string
 
-      if (record.timezone && record.localTimestamp) {
-        // 新しい形式の記録（タイムゾーン情報あり）
-        const localDate = new Date(record.localTimestamp)
-        localDateStr = TimezoneService.formatLocalDate(localDate, timezone)
-      } else if (record.timestamp) {
-        // 既存の形式の記録（UTC タイムスタンプのみ）
+      if (record.timestamp) {
+        // 常にUTCタイムスタンプを基準に変換する
         const utcDate = new Date(record.timestamp)
         localDateStr = TimezoneService.formatLocalDate(utcDate, timezone)
       } else {

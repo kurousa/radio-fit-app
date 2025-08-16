@@ -219,9 +219,9 @@ export default defineComponent({
 
             // ローカル時刻情報を表示用に生成
             let timeInfo = ''
-            if (record.localTimestamp && record.timezone) {
-              const localTime = new Date(record.localTimestamp)
-              const timeString = localTime.toLocaleTimeString('ja-JP', {
+            if (record.timezone) {
+              const utcTime = new Date(record.timestamp)
+              const timeString = utcTime.toLocaleTimeString('ja-JP', {
                 hour: '2-digit',
                 minute: '2-digit',
                 timeZone: record.timezone

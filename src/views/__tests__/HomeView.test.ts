@@ -66,16 +66,14 @@ describe('HomeView', () => {
         type: 'first',
         timestamp: 1705123456789,
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540,
-        localTimestamp: 1705155456789
+        timezoneOffset: -540
       },
       {
         date: '2025-01-14',
         type: 'first',
         timestamp: 1705037056789,
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540,
-        localTimestamp: 1705069056789
+        timezoneOffset: -540
       }
     ]
 
@@ -104,16 +102,14 @@ describe('HomeView', () => {
         type: 'first',
         timestamp: 1705123456789,
         timezone: 'America/New_York',
-        timezoneOffset: 300,
-        localTimestamp: 1705141456789
+        timezoneOffset: 300
       },
       {
         date: '2025-01-14',
         type: 'first',
         timestamp: 1705037056789,
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540,
-        localTimestamp: 1705069056789
+        timezoneOffset: -540
       }
     ]
 
@@ -177,8 +173,7 @@ describe('HomeView', () => {
       type: 'first' as const,
       timestamp: Date.now() - i * 24 * 60 * 60 * 1000,
       timezone: 'Asia/Tokyo',
-      timezoneOffset: -540,
-      localTimestamp: Date.now() - i * 24 * 60 * 60 * 1000 + (9 * 60 * 60 * 1000)
+      timezoneOffset: -540
     }))
 
     mockRecordService.getAllRecords.mockResolvedValue(mockRecords)

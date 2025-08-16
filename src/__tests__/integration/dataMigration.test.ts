@@ -92,8 +92,7 @@ describe('Data Migration Integration Tests', () => {
         type: 'first',
         timestamp: legacyRecord.timestamp,
         timezone: expect.any(String),
-        timezoneOffset: expect.any(Number),
-        localTimestamp: expect.any(Number)
+        timezoneOffset: expect.any(Number)
       })
     })
 
@@ -129,7 +128,6 @@ describe('Data Migration Integration Tests', () => {
         expect(record.timestamp).toBe(legacyRecords[index].timestamp)
         expect(record.timezone).toBeDefined()
         expect(record.timezoneOffset).toBeDefined()
-        expect(record.localTimestamp).toBeDefined()
       })
     })
 
@@ -421,7 +419,6 @@ describe('Data Migration Integration Tests', () => {
       // 新しいフィールドが追加されることを確認
       expect(migratedRecord.timezone).toBeDefined()
       expect(migratedRecord.timezoneOffset).toBeDefined()
-      expect(migratedRecord.localTimestamp).toBeDefined()
     })
 
     it('should handle edge cases in timestamp conversion', async () => {
@@ -448,7 +445,6 @@ describe('Data Migration Integration Tests', () => {
 
         // タイムゾーン情報が追加されていることを確認（エラーが発生しても元の記録は保持される）
         if (isTimezoneAwareRecord(migratedRecord)) {
-          expect(migratedRecord.localTimestamp).toBeDefined()
           expect(migratedRecord.timezone).toBeDefined()
           expect(migratedRecord.timezoneOffset).toBeDefined()
         }
