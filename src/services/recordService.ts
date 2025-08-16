@@ -21,30 +21,6 @@ export interface ExerciseRecord {
 }
 
 /**
- * 体操実施記録を保存する（後方互換性のため維持）
- * 内部的にタイムゾーン対応版を使用
- * @param date - 実施日付 (YYYY-MM-DD形式)
- * @param type - 体操の種類 ('first' or 'second')
- */
-export async function recordExercise(date: string, type: 'first' | 'second'): Promise<void> {
-  try {
-    // 指定された日付でDateオブジェクトを作成
-    // YYYY-MM-DD形式の文字列から日付を作成（ローカル時刻として解釈）
-    const [year, month, day] = date.split('-').map(Number)
-    const customDate = new Date(year, month - 1, day)
-
-    // タイムゾーン対応版を内部的に使用
-    await recordExerciseWithTimezone(type, customDate)
-
-    console.log(`記録しました: ${date} - ${type}`)
-  } catch (error) {
-    console.error('記録の保存に失敗しました:', error)
-    // エラーハンドリング：ユーザーへの通知など
-    throw error
-  }
-}
-
-/**
  * 全ての実施記録を取得する
  * @returns 全ての記録の配列
  */
@@ -62,21 +38,6 @@ export async function getAllRecords(): Promise<ExerciseRecord[]> {
     return allRecords
   } catch (error) {
     console.error('記録の取得に失敗しました:', error)
-    return []
-  }
-}
-
-/**
- * 特定の日の記録を取得する
- * @param date - 取得したい日付 (YYYY-MM-DD形式)
- * @returns その日の記録の配列
- */
-export async function getRecordsByDate(date: string): Promise<ExerciseRecord[]> {
-  try {
-    const records: ExerciseRecord[] = (await localforage.getItem(date)) || []
-    return records
-  } catch (error) {
-    console.error(`日付 ${date} の記録取得に失敗しました:`, error)
     return []
   }
 }

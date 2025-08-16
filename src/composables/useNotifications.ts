@@ -27,7 +27,7 @@ export function useNotifications() {
   const addNotification = (
     message: string,
     type: 'error' | 'warning' | 'info' = 'info',
-    duration: number = 5000
+    duration: number = 5000,
   ): string => {
     const id = `notification-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
 
@@ -36,7 +36,7 @@ export function useNotifications() {
       message,
       type,
       timestamp: new Date(),
-      duration
+      duration,
     }
 
     notifications.value.push(notification)
@@ -60,7 +60,7 @@ export function useNotifications() {
    * 通知を削除
    */
   const removeNotification = (id: string): void => {
-    const index = notifications.value.findIndex(n => n.id === id)
+    const index = notifications.value.findIndex((n) => n.id === id)
     if (index > -1) {
       notifications.value.splice(index, 1)
     }
@@ -87,7 +87,10 @@ export function useNotifications() {
   /**
    * TimezoneErrorHandler用のコールバック関数
    */
-  const handleTimezoneNotification = (message: string, type: 'error' | 'warning' | 'info'): void => {
+  const handleTimezoneNotification = (
+    message: string,
+    type: 'error' | 'warning' | 'info',
+  ): void => {
     // タイムゾーンエラーは重要なので長めに表示
     const duration = type === 'error' ? 8000 : type === 'warning' ? 6000 : 4000
     addNotification(message, type, duration)
@@ -132,7 +135,7 @@ export function useNotifications() {
     onUnmounted(() => {
       TimezoneErrorHandler.unregisterNotificationCallback(handleTimezoneNotification)
     })
-  } catch (error) {
+  } catch {
     // テスト環境やコンポーネント外での使用時は手動でコールバックを管理
     TimezoneErrorHandler.registerNotificationCallback(handleTimezoneNotification)
   }
@@ -146,44 +149,6 @@ export function useNotifications() {
     showError,
     showWarning,
     showInfo,
-    showSuccess
+    showSuccess,
   }
 }
-
-/**
- * グローバル通知システム（アプリ全体で共有）
- */
-class GlobalNotificationSystem {
-  private static instance: GlobalNotificationSystem
-  private callbacks: Array<(message: string, type: 'error' | 'warning' | 'info') => void> = []
-
-  static getInstance(): GlobalNotificationSystem {
-    if (!GlobalNotificationSystem.instance) {
-      GlobalNotificationSystem.instance = new GlobalNotificationSystem()
-    }
-    return GlobalNotificationSystem.instance
-  }
-
-  registerCallback(callback: (message: string, type: 'error' | 'warning' | 'info') => void): void {
-    this.callbacks.push(callback)
-  }
-
-  unregisterCallback(callback: (message: string, type: 'error' | 'warning' | 'info') => void): void {
-    const index = this.callbacks.indexOf(callback)
-    if (index > -1) {
-      this.callbacks.splice(index, 1)
-    }
-  }
-
-  notify(message: string, type: 'error' | 'warning' | 'info' = 'info'): void {
-    this.callbacks.forEach(callback => {
-      try {
-        callback(message, type)
-      } catch (error) {
-        console.error('Global notification callback error:', error)
-      }
-    })
-  }
-}
-
-export const globalNotificationSystem = GlobalNotificationSystem.getInstance()
