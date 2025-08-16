@@ -55,12 +55,21 @@
         <p>素晴らしいです！</p>
       </div>
     </div>
+
+    <!-- エラー時のポップアップ -->
+    <div v-if="showErrorPopup" class="error-popup">
+      <div class="popup-content">
+        <p>⚠️ エラーが発生しました</p>
+        <p>{{ errorMessage }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue'
-import { recordExercise } from '../services/recordService' // 記録サービスをインポート
+import { recordExerciseWithTimezone } from '../services/recordService' // タイムゾーン対応記録サービスをインポート
+import { TimezoneErrorHandler } from '../services/timezoneService' // エラーハンドリング用
 import { useRoute } from 'vue-router' // ルーティングからクエリパラメータを取得するために追加
 
 // 新しく作成した YouTubePlayer コンポーネントをインポート
@@ -78,6 +87,8 @@ export default defineComponent({
     const isAudioOnlyMode = ref(false) // 音声のみモードかどうかのフラグ
     const showCompletionPopup = ref(false) // 完了ポップアップ表示フラグ
     const selectedExerciseType = ref<'first' | 'second'>('first') // 選択中の体操タイプ
+    const errorMessage = ref<string>('') // エラーメッセージ表示用
+    const showErrorPopup = ref(false) // エラーポップアップ表示フラグ
 
     // ラジオ体操動画のYouTube IDマップ
     const videoIds = {
@@ -99,21 +110,42 @@ export default defineComponent({
 
     /**
      * 体操完了ボタンの処理
-     * 記録を保存し、ポップアップを表示
+     * タイムゾーン対応記録サービスを使用して記録を保存し、ポップアップを表示
      * 動画を停止するために `YouTubePlayer` をDOMから削除する
      */
     const completeExercise = async () => {
-      // 現在の日付と選択中の体操タイプで記録を保存
-      await recordExercise(new Date().toISOString().slice(0, 10), selectedExerciseType.value)
+      try {
+        // タイムゾーン対応記録サービスを使用して記録を保存
+        // ユーザーのローカルタイムゾーンが自動検出・保存される
+        await recordExerciseWithTimezone(selectedExerciseType.value)
 
-      // 完了ポップアップを表示
-      showCompletionPopup.value = true
-      setTimeout(() => {
-        showCompletionPopup.value = false
-      }, 2000) // 2秒後にポップアップを非表示
+        // 完了ポップアップを表示
+        showCompletionPopup.value = true
+        setTimeout(() => {
+          showCompletionPopup.value = false
+        }, 2000) // 2秒後にポップアップを非表示
 
-      // 体操完了時は音声のみモードに切り替えて動画を停止する（コンポーネントをDOMから削除）
-      isAudioOnlyMode.value = true
+        // 体操完了時は音声のみモードに切り替えて動画を停止する（コンポーネントをDOMから削除）
+        isAudioOnlyMode.value = true
+
+        console.log(`タイムゾーン対応記録が完了しました: ${selectedExerciseType.value}`)
+      } catch (error) {
+        // エラー時のユーザー通知
+        console.error('記録の保存中にエラーが発生しました:', error)
+
+        // エラーメッセージを設定
+        errorMessage.value = '記録の保存に失敗しました。もう一度お試しください。'
+
+        // エラーポップアップを表示
+        showErrorPopup.value = true
+        setTimeout(() => {
+          showErrorPopup.value = false
+          errorMessage.value = ''
+        }, 3000) // 3秒後にエラーポップアップを非表示
+
+        // TimezoneErrorHandlerを使用してエラーログを出力
+        TimezoneErrorHandler.showUserNotification(`記録保存エラー: ${error}`)
+      }
     }
 
     /**
@@ -157,6 +189,8 @@ export default defineComponent({
       showCompletionPopup,
       selectedExerciseType,
       videoIds, // videoId prop に直接使用するため公開
+      errorMessage, // エラーメッセージ
+      showErrorPopup, // エラーポップアップ表示フラグ
       toggleAudioOnly,
       completeExercise,
       selectExercise,
@@ -329,6 +363,34 @@ export default defineComponent({
 
 .completion-popup .popup-content p {
   margin: 5px 0;
+}
+
+/* エラーポップアップのスタイル */
+.error-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(220, 53, 69, 0.9); /* 赤系の半透明背景 */
+  color: white;
+  padding: 25px 40px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 1000;
+  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+  animation: fadeIn 0.3s ease-out;
+  max-width: 400px;
+}
+
+.error-popup .popup-content p {
+  margin: 8px 0;
+}
+
+.error-popup .popup-content p:first-child {
+  font-size: 20px;
+  margin-bottom: 12px;
 }
 
 @keyframes fadeIn {
