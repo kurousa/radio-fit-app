@@ -20,9 +20,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAllRecords } from '../services/recordService'
+import { DateUtils } from '../services/dateUtils'
+import { timezoneChangeDetector } from '../services/timezoneChangeDetector'
 
 export default defineComponent({
   name: 'HomeView',
@@ -30,46 +32,32 @@ export default defineComponent({
     const router = useRouter()
     const currentStreak = ref(0)
 
+    // タイムゾーン変更検出のアンサブスクライブ関数
+    let unsubscribeTimezoneChange: (() => void) | null = null
+
     const calculateStreak = async () => {
-      const records = await getAllRecords()
-      if (records.length === 0) {
+      try {
+        const records = await getAllRecords()
+        // DateUtilsのタイムゾーン対応連続日数計算を使用
+        const streak = DateUtils.calculateStreakWithTimezone(records)
+        currentStreak.value = streak
+      } catch (error) {
+        console.error('Failed to calculate streak:', error)
+        // エラー時は0を表示
         currentStreak.value = 0
-        return
       }
+    }
 
-      let streak = 0
-      let lastDate: Date | null = null
-      const sortedRecords = [...records].sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-      )
+    /**
+     * タイムゾーン変更時の処理
+     */
+    const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
+      console.log(`HomeView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
 
-      // 最新の日付から逆順に確認
-      for (let i = sortedRecords.length - 1; i >= 0; i--) {
-        const recordDate = new Date(sortedRecords[i].date)
-        recordDate.setHours(0, 0, 0, 0) // 時刻情報をリセットして日付のみを比較
+      // 連続日数を再計算
+      await calculateStreak()
 
-        if (!lastDate) {
-          // 最初のレコードは常に streak にカウント
-          streak = 1
-          lastDate = recordDate
-        } else {
-          const diffTime = Math.abs(recordDate.getTime() - lastDate.getTime())
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-          if (diffDays === 1) {
-            // 連続している
-            streak++
-            lastDate = recordDate
-          } else if (diffDays === 0) {
-            // 同日内の重複記録はカウントしない
-            // 何もしない
-          } else {
-            // 連続が途切れた
-            break
-          }
-        }
-      }
-      currentStreak.value = streak
+      console.log('HomeView: 連続日数が新しいタイムゾーンで再計算されました')
     }
 
     const goToExercise = (type: 'first' | 'second') => {
@@ -79,6 +67,22 @@ export default defineComponent({
 
     onMounted(() => {
       calculateStreak()
+
+      // タイムゾーン変更検出を開始
+      if (!timezoneChangeDetector.isMonitoring()) {
+        timezoneChangeDetector.startMonitoring()
+      }
+
+      // タイムゾーン変更時のコールバックを登録
+      unsubscribeTimezoneChange = timezoneChangeDetector.onTimezoneChange(handleTimezoneChange)
+    })
+
+    onUnmounted(() => {
+      // タイムゾーン変更検出のコールバックを解除
+      if (unsubscribeTimezoneChange) {
+        unsubscribeTimezoneChange()
+        unsubscribeTimezoneChange = null
+      }
     })
 
     return {

@@ -65,6 +65,38 @@ npm run build
 yarn build
 ```
 
+## テスト
+
+### 単体テスト
+
+```bash
+npm run test:unit
+# または
+yarn test:unit
+```
+
+### E2Eテスト
+
+#### 開発環境でのE2Eテスト
+
+```bash
+npm run test:e2e
+# または
+yarn test:e2e
+```
+
+#### プロダクションビルドでのE2Eテスト
+
+```bash
+# 1. プロダクションサーバーを起動
+npm run start:prod
+
+# 2. 別のターミナルでE2Eテストを実行
+npm run test:e2e-prod
+```
+
+詳細な手順については [E2E-TESTING.md](./E2E-TESTING.md) を参照してください。
+
 ## 貢献方法
 
 1. Issueを作成し、提案やバグ報告を行います。
