@@ -9,7 +9,7 @@
             'notification-toast',
             `notification-${notification.type}`
           ]"
-          @click="removeNotification(notification.id)"
+          @click="removeToast(notification.id)"
         >
           <div class="notification-content">
             <div class="notification-icon">
@@ -22,7 +22,7 @@
             </div>
             <button
               class="notification-close"
-              @click.stop="removeNotification(notification.id)"
+              @click.stop="removeToast(notification.id)"
               aria-label="通知を閉じる"
             >
               ×
@@ -40,13 +40,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useToastNotifications } from '../composables/useNotifications'
 
-// This is a placeholder. A real implementation would use a dedicated toast notification composable.
-const notifications = ref<any[]>([])
-const removeNotification = (id: number) => {
-  notifications.value = notifications.value.filter((n) => n.id !== id)
-}
+const { notifications, removeToast } = useToastNotifications()
 </script>
 
 <style scoped>
