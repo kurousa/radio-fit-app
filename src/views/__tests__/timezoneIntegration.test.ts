@@ -19,8 +19,14 @@ describe('Timezone Change Integration', () => {
 
     // シングルトンインスタンスをリセット
     timezoneChangeDetector.stopMonitoring()
-    ;(timezoneChangeDetector as any).callbacks.clear()
-    ;(timezoneChangeDetector as any).currentTimezone = 'Asia/Tokyo'
+    // プライベートプロパティにアクセスするためのタイプアサーション
+    const detector = timezoneChangeDetector as any
+    if (detector.callbacks && detector.callbacks.clear) {
+      detector.callbacks.clear()
+    }
+    if (detector.currentTimezone !== undefined) {
+      detector.currentTimezone = 'Asia/Tokyo'
+    }
 
     // タイマーをモック
     vi.useFakeTimers()
@@ -28,7 +34,11 @@ describe('Timezone Change Integration', () => {
 
   afterEach(() => {
     timezoneChangeDetector.stopMonitoring()
-    ;(timezoneChangeDetector as unknown).callbacks.clear()
+    // プライベートプロパティにアクセスするためのタイプアサーション
+    const detector = timezoneChangeDetector as unknown
+    if (detector.callbacks && detector.callbacks.clear) {
+      detector.callbacks.clear()
+    }
     vi.useRealTimers()
     vi.clearAllMocks()
   })

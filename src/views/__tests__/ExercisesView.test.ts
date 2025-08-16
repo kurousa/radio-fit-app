@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type Router } from 'vue-router'
 import ExercisesView from '../ExercisesView.vue'
 
 // Mock the recordService
@@ -25,7 +25,7 @@ vi.mock('../../components/YoutubePlayer.vue', () => ({
 }))
 
 describe('ExercisesView', () => {
-  let router: unknown
+  let router: Router
 
   beforeEach(() => {
     router = createRouter({

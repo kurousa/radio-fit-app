@@ -2,7 +2,7 @@
  * TimezoneService のテスト
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { TimezoneService, TimezoneErrorHandler } from '../timezoneService'
 
 describe('TimezoneService', () => {
@@ -94,6 +94,18 @@ describe('TimezoneService', () => {
 })
 
 describe('TimezoneErrorHandler', () => {
+  beforeEach(() => {
+    // 各テスト前にエラーログとコールバックをクリア
+    TimezoneErrorHandler.clearErrorLog()
+    TimezoneErrorHandler.clearNotificationCallbacks()
+  })
+
+  afterEach(() => {
+    // テスト後のクリーンアップ
+    TimezoneErrorHandler.clearErrorLog()
+    TimezoneErrorHandler.clearNotificationCallbacks()
+  })
+
   it('should handle errors without throwing', () => {
     const error = {
       type: 'detection_failed' as const,
@@ -107,12 +119,30 @@ describe('TimezoneErrorHandler', () => {
   })
 
   it('should show user notification', () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    // コールバックが登録されていない場合のフォールバック動作をテスト
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    TimezoneErrorHandler.showUserNotification('Test message')
+    // すべてのコールバックをクリアしてフォールバック動作を確認
+    TimezoneErrorHandler.clearNotificationCallbacks()
+
+    TimezoneErrorHandler.showUserNotification('Test message', 'error')
 
     expect(consoleSpy).toHaveBeenCalledWith('User Notification:', 'Test message')
 
     consoleSpy.mockRestore()
+  })
+
+  it('should call registered callbacks', () => {
+    const mockCallback = vi.fn()
+
+    // コールバックを登録
+    TimezoneErrorHandler.registerNotificationCallback(mockCallback)
+
+    TimezoneErrorHandler.showUserNotification('Test message', 'warning')
+
+    expect(mockCallback).toHaveBeenCalledWith('Test message', 'warning')
+
+    // クリーンアップ
+    TimezoneErrorHandler.unregisterNotificationCallback(mockCallback)
   })
 })

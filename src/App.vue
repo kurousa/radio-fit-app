@@ -15,7 +15,14 @@
   <main class="app-content">
     <router-view />
   </main>
+
+  <!-- グローバル通知システム -->
+  <NotificationToast />
 </template>
+
+<script setup lang="ts">
+import NotificationToast from './components/NotificationToast.vue'
+</script>
 
 <style>
 /* ヘッダーの基本スタイル */

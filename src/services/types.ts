@@ -31,6 +31,7 @@ export interface TimezoneError {
   type: 'detection_failed' | 'invalid_timezone' | 'conversion_error'
   message: string
   fallbackAction: string
+  timestamp?: string // エラー発生時刻（ISO文字列）
 }
 
 /**

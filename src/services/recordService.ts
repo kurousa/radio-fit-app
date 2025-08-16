@@ -209,6 +209,14 @@ export function migrateRecordToTimezoneAware(
     // タイムゾーン情報を取得（省略時は現在のタイムゾーンを使用）
     const targetTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
 
+    // タイムゾーンの有効性をチェック
+    try {
+      new Intl.DateTimeFormat('en-CA', { timeZone: targetTimezone })
+    } catch (timezoneError) {
+      console.error(`Invalid timezone: ${targetTimezone}`, timezoneError)
+      return record // 無効なタイムゾーンの場合は元の記録を返す
+    }
+
     // 既存のタイムスタンプからタイムゾーン情報を計算
     const utcDate = new Date(record.timestamp)
 
