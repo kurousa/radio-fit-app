@@ -22,7 +22,12 @@
   - 既存データとの互換性を保つためのマイグレーション関数を実装
   - _要件: 1.1, 1.2, 4.3_
 
-- [ ] 3. RecordServiceをタイムゾーン対応に拡張
+- [x] 3. RecordServiceをタイムゾーン対応に拡張
+
+
+
+
+
   - recordExerciseWithTimezone関数を実装し、タイムゾーン情報付きで記録を保存
   - getRecordsWithTimezoneConversion関数を実装し、指定タイムゾーンに変換して記録を取得
   - 既存のrecordExercise関数を内部的にタイムゾーン対応版を使用するよう更新

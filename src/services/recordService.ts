@@ -1,4 +1,5 @@
 import localforage from 'localforage'
+import { TimezoneService } from './timezoneService'
 
 // IndexedDBのストア名
 const STORE_NAME = 'radio_taiso_records'
@@ -20,19 +21,26 @@ export interface ExerciseRecord {
 }
 
 /**
- * 体操実施記録を保存する
+ * 体操実施記録を保存する（後方互換性のため維持）
+ * 内部的にタイムゾーン対応版を使用
  * @param date - 実施日付 (YYYY-MM-DD形式)
  * @param type - 体操の種類 ('first' or 'second')
  */
 export async function recordExercise(date: string, type: 'first' | 'second'): Promise<void> {
   try {
-    const records: ExerciseRecord[] = (await localforage.getItem(date)) || []
-    records.push({ date, type, timestamp: Date.now() })
-    await localforage.setItem(date, records)
+    // 指定された日付でDateオブジェクトを作成
+    // YYYY-MM-DD形式の文字列から日付を作成（ローカル時刻として解釈）
+    const [year, month, day] = date.split('-').map(Number)
+    const customDate = new Date(year, month - 1, day)
+
+    // タイムゾーン対応版を内部的に使用
+    await recordExerciseWithTimezone(type, customDate)
+
     console.log(`記録しました: ${date} - ${type}`)
   } catch (error) {
     console.error('記録の保存に失敗しました:', error)
     // エラーハンドリング：ユーザーへの通知など
+    throw error
   }
 }
 
@@ -69,6 +77,112 @@ export async function getRecordsByDate(date: string): Promise<ExerciseRecord[]> 
     return records
   } catch (error) {
     console.error(`日付 ${date} の記録取得に失敗しました:`, error)
+    return []
+  }
+}
+
+/**
+ * タイムゾーン情報付きで体操実施記録を保存する
+ * @param type - 体操の種類 ('first' or 'second')
+ * @param customDate - カスタム日付（省略時は現在日時）
+ */
+export async function recordExerciseWithTimezone(
+  type: 'first' | 'second',
+  customDate?: Date
+): Promise<void> {
+  try {
+    // 現在のタイムゾーン情報を取得
+    const timezoneInfo = TimezoneService.getCurrentTimezoneInfo()
+    const recordDate = customDate || new Date()
+
+    // UTCタイムスタンプ
+    const utcTimestamp = recordDate.getTime()
+
+    // ローカル日付文字列を生成
+    const localDateString = TimezoneService.formatLocalDate(recordDate, timezoneInfo.timezone)
+
+    // ローカルタイムスタンプを計算
+    const localTimestamp = recordDate.getTime() + (timezoneInfo.offset * 60 * 1000)
+
+    // タイムゾーン対応の記録データを作成
+    const record: ExerciseRecord = {
+      date: localDateString,
+      type,
+      timestamp: utcTimestamp,
+      timezone: timezoneInfo.timezone,
+      timezoneOffset: timezoneInfo.offset,
+      localTimestamp
+    }
+
+    // 既存の記録を取得
+    const existingRecords: ExerciseRecord[] = (await localforage.getItem(localDateString)) || []
+
+    // 新しい記録を追加
+    existingRecords.push(record)
+
+    // 保存
+    await localforage.setItem(localDateString, existingRecords)
+
+    console.log(`タイムゾーン対応記録を保存しました: ${localDateString} - ${type} (${timezoneInfo.timezone})`)
+  } catch (error) {
+    console.error('タイムゾーン対応記録の保存に失敗しました:', error)
+    throw new Error('Failed to record exercise with timezone information')
+  }
+}
+
+/**
+ * 指定タイムゾーンに変換して記録を取得する
+ * @param targetTimezone - 変換先タイムゾーン（省略時は現在のタイムゾーン）
+ * @returns タイムゾーン変換された記録の配列
+ */
+export async function getRecordsWithTimezoneConversion(
+  targetTimezone?: string
+): Promise<ExerciseRecord[]> {
+  try {
+    // 全ての記録を取得
+    const allRecords = await getAllRecords()
+
+    // 既存データの自動マイグレーション
+    const migratedRecords = migrateRecordsToTimezoneAware(allRecords)
+
+    // ターゲットタイムゾーンを決定
+    const timezone = targetTimezone || TimezoneService.getCurrentTimezoneInfo().timezone
+
+    // 各記録をターゲットタイムゾーンに変換
+    const convertedRecords = migratedRecords.map(record => {
+      try {
+        // 既にターゲットタイムゾーンの場合はそのまま返す
+        if (record.timezone === timezone) {
+          return record
+        }
+
+        // UTCタイムスタンプからターゲットタイムゾーンの時刻に変換
+        const localDate = TimezoneService.convertUTCToLocal(record.timestamp, timezone)
+        const localDateString = TimezoneService.formatLocalDate(localDate, timezone)
+
+        // タイムゾーン情報を更新
+        const timezoneInfo = TimezoneService.getCurrentTimezoneInfo()
+
+        return {
+          ...record,
+          date: localDateString,
+          timezone: timezone,
+          timezoneOffset: timezoneInfo.offset,
+          localTimestamp: localDate.getTime()
+        }
+      } catch (error) {
+        console.error(`記録の変換に失敗しました (ID: ${record.date}-${record.type}):`, error)
+        // エラー時は元の記録を返す
+        return record
+      }
+    })
+
+    // 日付順にソート
+    convertedRecords.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+    return convertedRecords
+  } catch (error) {
+    console.error('タイムゾーン変換記録の取得に失敗しました:', error)
     return []
   }
 }

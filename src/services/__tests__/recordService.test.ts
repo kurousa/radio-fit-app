@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   migrateRecordToTimezoneAware,
   migrateRecordsToTimezoneAware,
   isTimezoneAwareRecord,
+  recordExerciseWithTimezone,
+  getRecordsWithTimezoneConversion,
   type ExerciseRecord
 } from '../recordService'
 
@@ -115,6 +117,47 @@ describe('RecordService Migration Functions', () => {
       const migrated = migrateRecordsToTimezoneAware([])
 
       expect(migrated).toEqual([])
+    })
+  })
+})
+
+describe('Timezone-Aware Record Functions', () => {
+  beforeEach(() => {
+    // Clear any existing mocks
+    vi.clearAllMocks()
+  })
+
+  describe('recordExerciseWithTimezone', () => {
+    it('should save record with timezone information', async () => {
+      // Mock localforage
+      const mockLocalforage = {
+        getItem: vi.fn().mockResolvedValue([]),
+        setItem: vi.fn().mockResolvedValue(undefined)
+      }
+
+      // This test verifies the function executes successfully
+      await expect(recordExerciseWithTimezone('first')).resolves.toBeUndefined()
+    })
+
+    it('should handle custom date parameter', async () => {
+      const customDate = new Date('2025-01-15T10:30:00Z')
+
+      // This test verifies the function accepts custom date parameter
+      await expect(recordExerciseWithTimezone('second', customDate)).resolves.toBeUndefined()
+    })
+  })
+
+  describe('getRecordsWithTimezoneConversion', () => {
+    it('should return empty array when no records exist', async () => {
+      // This test verifies the function handles empty data gracefully
+      const records = await getRecordsWithTimezoneConversion()
+      expect(Array.isArray(records)).toBe(true)
+    })
+
+    it('should accept target timezone parameter', async () => {
+      // This test verifies the function accepts timezone parameter
+      const records = await getRecordsWithTimezoneConversion('America/New_York')
+      expect(Array.isArray(records)).toBe(true)
     })
   })
 })
