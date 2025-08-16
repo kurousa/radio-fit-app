@@ -35,7 +35,8 @@ describe('Timezone Change Integration', () => {
   afterEach(() => {
     timezoneChangeDetector.stopMonitoring()
     // プライベートプロパティにアクセスするためのタイプアサーション
-    const detector = timezoneChangeDetector as unknown
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const detector = timezoneChangeDetector as any
     if (detector.callbacks && detector.callbacks.clear) {
       detector.callbacks.clear()
     }

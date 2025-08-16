@@ -15,6 +15,7 @@ describe('TimezoneChangeDetector', () => {
 
   beforeEach(() => {
     // シングルトンインスタンスをリセット
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(TimezoneChangeDetector as any).instance = null
 
     mockGetCurrentTimezoneInfo = vi.mocked(TimezoneService.getCurrentTimezoneInfo)
