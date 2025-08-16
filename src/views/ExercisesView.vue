@@ -1,16 +1,10 @@
 <template>
   <div class="exercises-container">
     <div class="video-selection-buttons">
-      <button
-        @click="selectExercise('first')"
-        :class="{ active: selectedExerciseType === 'first' }"
-      >
+      <button @click="selectExercise('first')" :class="{ active: selectedExerciseType === 'first' }">
         ラジオ体操 第一
       </button>
-      <button
-        @click="selectExercise('second')"
-        :class="{ active: selectedExerciseType === 'second' }"
-      >
+      <button @click="selectExercise('second')" :class="{ active: selectedExerciseType === 'second' }">
         ラジオ体操 第二
       </button>
     </div>
@@ -18,11 +12,8 @@
     <div class="player-wrapper">
       <!-- YouTubePlayer コンポーネントを使用 -->
       <!-- isAudioOnlyMode が false の時のみ動画プレイヤーを表示 -->
-      <YouTubePlayer
-        v-if="!isAudioOnlyMode"
-        :video-id="videoIds[selectedExerciseType]"
-        class="youtube-player-component"
-      />
+      <YouTubePlayer v-show="!isAudioOnlyMode" :video-id="videoIds[selectedExerciseType]"
+        class="youtube-player-component" />
       <!-- <YouTubePlayer
         v-if="!isAudioOnlyMode"
         :video-id="videoIds[selectedExerciseType]"
@@ -30,12 +21,8 @@
       /> -->
 
       <!-- 音声のみモード時に表示するコンテンツ -->
-      <div v-if="isAudioOnlyMode" class="audio-only-visual">
-        <img
-          src="@/assets/radio-taiso-illustration.png"
-          alt="ラジオ体操"
-          class="taiso-illustration"
-        />
+      <div v-show="isAudioOnlyMode" class="audio-only-visual">
+        <img src="@/assets/radio-taiso-illustration.png" alt="ラジオ体操" class="taiso-illustration" />
         <p class="audio-status-text">音声のみ再生中...</p>
         <button @click="toggleAudioOnly" class="toggle-video-button">動画に戻す</button>
       </div>
@@ -67,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { recordExerciseWithTimezone } from '../services/recordService' // タイムゾーン対応記録サービスをインポート
 import { TimezoneErrorHandler } from '../services/timezoneService' // エラーハンドリング用
 import { useRoute } from 'vue-router' // ルーティングからクエリパラメータを取得するために追加
@@ -121,12 +108,22 @@ export default defineComponent({
 
         // 完了ポップアップを表示
         showCompletionPopup.value = true
+
+        // DOM更新を待ってから音声のみモードに切り替える
+        await nextTick()
+
+        // 少し遅延させてから音声のみモードに切り替える（DOM操作の競合を避けるため）
+        setTimeout(() => {
+          try {
+            isAudioOnlyMode.value = true
+          } catch (domError) {
+            console.warn('DOM操作でエラーが発生しましたが、処理を続行します:', domError)
+          }
+        }, 200)
+
         setTimeout(() => {
           showCompletionPopup.value = false
         }, 2000) // 2秒後にポップアップを非表示
-
-        // 体操完了時は音声のみモードに切り替えて動画を停止する（コンポーネントをDOMから削除）
-        isAudioOnlyMode.value = true
 
         console.log(`タイムゾーン対応記録が完了しました: ${selectedExerciseType.value}`)
       } catch (error) {
@@ -205,8 +202,10 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  max-width: 900px; /* 全体の最大幅 */
-  margin: 0 auto; /* 中央寄せ */
+  max-width: 900px;
+  /* 全体の最大幅 */
+  margin: 0 auto;
+  /* 中央寄せ */
 }
 
 .video-selection-buttons {
@@ -240,11 +239,15 @@ export default defineComponent({
 .player-wrapper {
   position: relative;
   width: 100%;
-  max-width: 800px; /* 動画プレイヤーの最大幅 */
-  aspect-ratio: 16 / 9; /* 16:9のアスペクト比を維持 */
-  background-color: #e0e0e0; /* 動画が読み込まれるまでの背景色 */
+  max-width: 800px;
+  /* 動画プレイヤーの最大幅 */
+  aspect-ratio: 16 / 9;
+  /* 16:9のアスペクト比を維持 */
+  background-color: #e0e0e0;
+  /* 動画が読み込まれるまでの背景色 */
   border-radius: 12px;
-  overflow: hidden; /* 角丸にするために必要 */
+  overflow: hidden;
+  /* 角丸にするために必要 */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
@@ -269,17 +272,21 @@ export default defineComponent({
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #c4e0f0; /* 明るい青系の背景 */
+  background-color: #c4e0f0;
+  /* 明るい青系の背景 */
   color: #333;
   text-align: center;
   padding: 20px;
+  z-index: 10;
+  /* YouTubePlayerの上に表示 */
 }
 
 .taiso-illustration {
   max-width: 60%;
   height: auto;
   margin-bottom: 20px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)); /* イラストに影 */
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  /* イラストに影 */
 }
 
 .audio-status-text {
@@ -300,6 +307,7 @@ export default defineComponent({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.2s ease-in-out;
 }
+
 .toggle-video-button:hover {
   background-color: #777;
 }
@@ -308,7 +316,8 @@ export default defineComponent({
   margin-top: 30px;
   display: flex;
   gap: 20px;
-  flex-wrap: wrap; /* ボタンが複数行になる場合に対応 */
+  flex-wrap: wrap;
+  /* ボタンが複数行になる場合に対応 */
   justify-content: center;
 }
 
@@ -322,21 +331,26 @@ export default defineComponent({
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease-in-out;
-  min-width: 200px; /* ボタンの最小幅 */
+  min-width: 200px;
+  /* ボタンの最小幅 */
 }
 
 .audio-toggle-button {
-  background-color: #a0a0a0; /* グレー系 */
+  background-color: #a0a0a0;
+  /* グレー系 */
   color: white;
 }
+
 .audio-toggle-button:hover {
   background-color: #888;
 }
 
 .complete-button {
-  background-color: #007bff; /* メインカラー */
+  background-color: #007bff;
+  /* メインカラー */
   color: white;
 }
+
 .complete-button:hover {
   background-color: #0056b3;
   transform: translateY(-2px);
@@ -349,7 +363,8 @@ export default defineComponent({
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: rgba(0, 0, 0, 0.75); /* 半透明の黒背景 */
+  background-color: rgba(0, 0, 0, 0.75);
+  /* 半透明の黒背景 */
   color: white;
   padding: 30px 50px;
   border-radius: 15px;
@@ -358,7 +373,8 @@ export default defineComponent({
   font-weight: bold;
   z-index: 1000;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  animation: fadeIn 0.3s ease-out; /* ポップアップ表示アニメーション */
+  animation: fadeIn 0.3s ease-out;
+  /* ポップアップ表示アニメーション */
 }
 
 .completion-popup .popup-content p {
@@ -371,7 +387,8 @@ export default defineComponent({
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: rgba(220, 53, 69, 0.9); /* 赤系の半透明背景 */
+  background-color: rgba(220, 53, 69, 0.9);
+  /* 赤系の半透明背景 */
   color: white;
   padding: 25px 40px;
   border-radius: 15px;
@@ -398,6 +415,7 @@ export default defineComponent({
     opacity: 0;
     transform: translate(-50%, -60%);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, -50%);
@@ -409,18 +427,25 @@ export default defineComponent({
   .exercises-container {
     padding: 15px;
   }
+
   .player-wrapper {
-    max-width: 100%; /* 小画面では幅いっぱいに */
+    max-width: 100%;
+    /* 小画面では幅いっぱいに */
   }
+
   .controls {
-    flex-direction: column; /* ボタンを縦に並べる */
+    flex-direction: column;
+    /* ボタンを縦に並べる */
     gap: 15px;
   }
+
   .audio-toggle-button,
   .complete-button {
-    width: 100%; /* 幅いっぱいに */
+    width: 100%;
+    /* 幅いっぱいに */
     min-width: unset;
   }
+
   .completion-popup {
     font-size: 20px;
     padding: 20px 30px;
