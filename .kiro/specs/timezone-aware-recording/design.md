@@ -116,8 +116,8 @@ export async function getRecordsWithTimezoneConversion(
   type: "first",
   timestamp: 1705123456789, // UTC タイムスタンプ
   timezone: "Asia/Tokyo", // IANA タイムゾーン識別子
-  timezoneOffset: -540, // JST は UTC-9時間 = -540分
-  localTimestamp: 1705155456789 // ローカルタイムスタンプ
+  timezoneOffset: -540, // JST は UTC+9時間 = -540分
+  localTimestamp: 1705155856789 // ローカルタイムスタンプ (timestamp + 32400000)
 }
 ```
 
