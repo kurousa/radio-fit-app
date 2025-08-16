@@ -20,16 +20,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAllRecords } from '../services/recordService'
 import { DateUtils } from '../services/dateUtils'
+import { timezoneChangeDetector } from '../services/timezoneChangeDetector'
 
 export default defineComponent({
   name: 'HomeView',
   setup() {
     const router = useRouter()
     const currentStreak = ref(0)
+
+    // タイムゾーン変更検出のアンサブスクライブ関数
+    let unsubscribeTimezoneChange: (() => void) | null = null
 
     const calculateStreak = async () => {
       try {
@@ -44,6 +48,18 @@ export default defineComponent({
       }
     }
 
+    /**
+     * タイムゾーン変更時の処理
+     */
+    const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
+      console.log(`HomeView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
+
+      // 連続日数を再計算
+      await calculateStreak()
+
+      console.log('HomeView: 連続日数が新しいタイムゾーンで再計算されました')
+    }
+
     const goToExercise = (type: 'first' | 'second') => {
       // 必要に応じて、体操の種類をルーティングのパラメータとして渡す
       router.push({ name: 'exercises', query: { type } })
@@ -51,6 +67,22 @@ export default defineComponent({
 
     onMounted(() => {
       calculateStreak()
+
+      // タイムゾーン変更検出を開始
+      if (!timezoneChangeDetector.isMonitoring()) {
+        timezoneChangeDetector.startMonitoring()
+      }
+
+      // タイムゾーン変更時のコールバックを登録
+      unsubscribeTimezoneChange = timezoneChangeDetector.onTimezoneChange(handleTimezoneChange)
+    })
+
+    onUnmounted(() => {
+      // タイムゾーン変更検出のコールバックを解除
+      if (unsubscribeTimezoneChange) {
+        unsubscribeTimezoneChange()
+        unsubscribeTimezoneChange = null
+      }
     })
 
     return {

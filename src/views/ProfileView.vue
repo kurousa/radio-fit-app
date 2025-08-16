@@ -73,6 +73,7 @@ import { getAllRecords, getRecordsWithTimezoneConversion } from '../services/rec
 import type { ExerciseRecord } from '../services/recordService'
 import { TimezoneService } from '../services/timezoneService'
 import { DateUtils } from '../services/dateUtils'
+import { timezoneChangeDetector } from '../services/timezoneChangeDetector'
 
 export default defineComponent({
   name: 'ProfileView',
@@ -90,8 +91,8 @@ export default defineComponent({
     // 現在のタイムゾーンを追跡
     const currentTimezone = ref<string>('')
 
-    // タイムゾーン変更検出用のインターバルID
-    let timezoneCheckInterval: number | null = null
+    // タイムゾーン変更検出のアンサブスクライブ関数
+    let unsubscribeTimezoneChange: (() => void) | null = null
 
     // V-Calendarのための属性（ハイライト表示など）
     const calendarAttributes = ref<unknown>([]) // V-Calendarの属性配列
@@ -296,23 +297,18 @@ export default defineComponent({
     }
 
     /**
-     * システムタイムゾーン変更を検出する
+     * タイムゾーン変更時の処理
      */
-    const detectTimezoneChange = () => {
-      try {
-        const detectedTimezone = TimezoneService.getCurrentTimezoneInfo().timezone
+    const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
+      console.log(`ProfileView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
 
-        if (currentTimezone.value && currentTimezone.value !== detectedTimezone) {
-          console.log(`タイムゾーン変更を検出: ${currentTimezone.value} → ${detectedTimezone}`)
+      // 現在のタイムゾーンを更新
+      currentTimezone.value = newTimezone
 
-          // タイムゾーン変更時に記録を再読み込み
-          loadRecords()
-        }
+      // 記録を再読み込みしてカレンダー表示を更新
+      await loadRecords()
 
-        currentTimezone.value = detectedTimezone
-      } catch (error) {
-        console.error('タイムゾーン変更検出に失敗しました:', error)
-      }
+      console.log('ProfileView: カレンダー表示が新しいタイムゾーンで更新されました')
     }
 
     /**
@@ -321,7 +317,7 @@ export default defineComponent({
     onMounted(async () => {
       // 初期タイムゾーンを設定
       try {
-        currentTimezone.value = TimezoneService.getCurrentTimezoneInfo().timezone
+        currentTimezone.value = timezoneChangeDetector.getCurrentTimezone()
       } catch (error) {
         console.error('初期タイムゾーン設定に失敗しました:', error)
       }
@@ -329,8 +325,13 @@ export default defineComponent({
       // 記録の初期ロード
       await loadRecords()
 
-      // タイムゾーン変更検出のためのインターバル設定（30秒ごと）
-      timezoneCheckInterval = window.setInterval(detectTimezoneChange, 30000)
+      // タイムゾーン変更検出を開始
+      if (!timezoneChangeDetector.isMonitoring()) {
+        timezoneChangeDetector.startMonitoring()
+      }
+
+      // タイムゾーン変更時のコールバックを登録
+      unsubscribeTimezoneChange = timezoneChangeDetector.onTimezoneChange(handleTimezoneChange)
 
       // ここで、IndexedDBなどから保存された通知設定をロードするロジックを追加することも可能
       // 例: notificationsEnabled.value = (await localforage.getItem('notificationsEnabled')) || false;
@@ -341,10 +342,10 @@ export default defineComponent({
      * コンポーネントがアンマウントされる時の処理
      */
     onUnmounted(() => {
-      // タイムゾーン変更検出インターバルをクリア
-      if (timezoneCheckInterval !== null) {
-        clearInterval(timezoneCheckInterval)
-        timezoneCheckInterval = null
+      // タイムゾーン変更検出のコールバックを解除
+      if (unsubscribeTimezoneChange) {
+        unsubscribeTimezoneChange()
+        unsubscribeTimezoneChange = null
       }
     })
 
