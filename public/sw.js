@@ -130,6 +130,11 @@ async function restoreSchedule() {
 // --- Service Worker Event Listeners ---
 
 self.addEventListener('message', (event) => {
+  const isProduction = event.origin === 'https://radio-fit-app.vercel.app'
+  const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(event.origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(event.origin)
+
+  if (!isProduction && !isLocalhost) return
+
   if (event.data.type === 'SCHEDULE_NOTIFICATION') {
     scheduleNotification(event.data.time)
   } else if (event.data.type === 'CANCEL_NOTIFICATION') {
