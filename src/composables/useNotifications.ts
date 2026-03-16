@@ -60,11 +60,21 @@ export function useNotifications() {
   const { addToast } = useToastNotifications()
 
   const loadSettings = () => {
-    const settingsJson = localStorage.getItem(NOTIFICATION_SETTINGS_KEY)
-    if (settingsJson) {
-      const settings = JSON.parse(settingsJson) as NotificationSettings
-      isEnabled.value = settings.isEnabled
-      notificationTime.value = settings.time
+    try {
+      const settingsJson = localStorage.getItem(NOTIFICATION_SETTINGS_KEY)
+      if (settingsJson) {
+        const settings = JSON.parse(settingsJson)
+        if (settings && typeof settings === 'object') {
+          if (typeof settings.isEnabled === 'boolean') {
+            isEnabled.value = settings.isEnabled
+          }
+          if (typeof settings.time === 'string') {
+            notificationTime.value = settings.time
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing notification settings from localStorage:', error)
     }
   }
 
