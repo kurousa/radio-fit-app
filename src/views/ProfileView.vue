@@ -110,7 +110,7 @@ const longestStreak = computed(() => {
     const sortedRecords = [...allRecords.value].sort((a, b) => {
       return new Date(a.date).getTime() - new Date(b.date).getTime()
     })
-    const uniqueDates = Array.from(new Set(sortedRecords.map((record) => record.date))).sort()
+    const uniqueDates = [...new Set(sortedRecords.map((record) => record.date))]
     for (let i = 0; i < uniqueDates.length; i++) {
       const currentDate = new Date(uniqueDates[i] + 'T12:00:00')
       if (i === 0) {
