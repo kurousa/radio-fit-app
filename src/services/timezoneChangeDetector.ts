@@ -33,11 +33,9 @@ export class TimezoneChangeDetector {
    */
   startMonitoring(): void {
     if (this.checkInterval !== null) {
-      console.warn('Timezone monitoring is already running')
       return
     }
 
-    console.log('Starting timezone change monitoring...')
     this.checkInterval = window.setInterval(() => {
       this.checkTimezoneChange()
     }, this.CHECK_INTERVAL_MS)
@@ -53,7 +51,6 @@ export class TimezoneChangeDetector {
     if (this.checkInterval !== null) {
       clearInterval(this.checkInterval)
       this.checkInterval = null
-      console.log('Timezone monitoring stopped')
     }
 
     document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this))
@@ -91,8 +88,6 @@ export class TimezoneChangeDetector {
       const detectedTimezone = this.getCurrentTimezone()
 
       if (this.currentTimezone !== detectedTimezone) {
-        console.log(`Timezone change detected: ${this.currentTimezone} → ${detectedTimezone}`)
-
         const oldTimezone = this.currentTimezone
         this.currentTimezone = detectedTimezone
 

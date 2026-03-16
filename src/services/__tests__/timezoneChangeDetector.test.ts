@@ -81,13 +81,15 @@ describe('TimezoneChangeDetector', () => {
     })
 
     it('should not start monitoring twice', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const setIntervalSpy = vi.spyOn(window, 'setInterval')
 
       detector.startMonitoring()
-      detector.startMonitoring()
+      expect(setIntervalSpy).toHaveBeenCalledTimes(1)
 
-      expect(consoleSpy).toHaveBeenCalledWith('Timezone monitoring is already running')
-      consoleSpy.mockRestore()
+      detector.startMonitoring()
+      expect(setIntervalSpy).toHaveBeenCalledTimes(1)
+
+      setIntervalSpy.mockRestore()
     })
   })
 
