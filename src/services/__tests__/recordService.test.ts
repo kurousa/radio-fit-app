@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import localforage from 'localforage'
 import {
   migrateRecordToTimezoneAware,
   migrateRecordsToTimezoneAware,
@@ -119,6 +120,16 @@ describe('RecordService Migration Functions', () => {
   })
 })
 
+// Mock localforage
+vi.mock('localforage', () => ({
+  default: {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    iterate: vi.fn(),
+    config: vi.fn()
+  }
+}))
+
 // Mock getAllRecords function
 vi.mock('../recordService', async () => {
   const actual = await vi.importActual('../recordService')
@@ -151,6 +162,15 @@ describe('Timezone-Aware Record Functions', () => {
 
       // This test verifies the function accepts custom date parameter
       await expect(recordExerciseWithTimezone('second', customDate)).resolves.toBeUndefined()
+    })
+
+    it('should throw error when storage fails', async () => {
+      // Mock localforage.setItem to throw an error
+      vi.mocked(localforage.setItem).mockRejectedValue(new Error('Storage error'))
+
+      await expect(recordExerciseWithTimezone('first'))
+        .rejects
+        .toThrow('Failed to record exercise with timezone information')
     })
   })
 
