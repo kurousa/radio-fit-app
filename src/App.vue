@@ -54,17 +54,19 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #f8f8f8; /* 明るい背景色 */
+  background-color: var(--color-background-soft); /* 明るい背景色 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .logo {
+  color: var(--color-text);
+  color: var(--color-text);
   font-weight: bold;
   font-size: 20px;
 }
 .main-nav a {
   margin-left: 20px;
   text-decoration: none;
-  color: #333;
+  color: var(--color-text);
   font-weight: 500;
   padding: 5px; /* Increase hit area slightly */
   border-radius: 4px; /* for focus ring */
