@@ -5,10 +5,7 @@
         <div
           v-for="notification in notifications"
           :key="notification.id"
-          :class="[
-            'notification-toast',
-            `notification-${notification.type}`
-          ]"
+          :class="['notification-toast', `notification-${notification.type}`]"
           @click="removeToast(notification.id)"
         >
           <div class="notification-content">
@@ -118,7 +115,7 @@ const { notifications, removeToast } = useToastNotifications()
 
 .notification-progress {
   height: 3px;
-  background: linear-gradient(90deg, #4CAF50, #45a049);
+  background: linear-gradient(90deg, #4caf50, #45a049);
   animation: progress-bar linear forwards;
   transform-origin: left;
 }

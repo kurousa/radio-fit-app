@@ -10,7 +10,9 @@ import type { TimezoneInfo, TimezoneError } from './types'
  * エラーの処理とユーザー通知を管理
  */
 export class TimezoneErrorHandler {
-  private static notificationCallbacks: Array<(message: string, type: 'error' | 'warning' | 'info') => void> = []
+  private static notificationCallbacks: Array<
+    (message: string, type: 'error' | 'warning' | 'info') => void
+  > = []
   private static errorLog: TimezoneError[] = []
   private static readonly MAX_ERROR_LOG_SIZE = 50
 
@@ -38,7 +40,7 @@ export class TimezoneErrorHandler {
    */
   static showUserNotification(message: string, type: 'error' | 'warning' | 'info' = 'error'): void {
     // 登録されたコールバック関数を呼び出し
-    this.notificationCallbacks.forEach(callback => {
+    this.notificationCallbacks.forEach((callback) => {
       try {
         callback(message, type)
       } catch (error) {
@@ -47,7 +49,8 @@ export class TimezoneErrorHandler {
     })
 
     // フォールバック: コンソールログ
-    const logMethod = type === 'error' ? console.error : type === 'warning' ? console.warn : console.info
+    const logMethod =
+      type === 'error' ? console.error : type === 'warning' ? console.warn : console.info
     logMethod('User Notification:', message)
   }
 
@@ -55,14 +58,18 @@ export class TimezoneErrorHandler {
    * 通知コールバック関数を登録
    * Vue コンポーネントから通知システムを登録するために使用
    */
-  static registerNotificationCallback(callback: (message: string, type: 'error' | 'warning' | 'info') => void): void {
+  static registerNotificationCallback(
+    callback: (message: string, type: 'error' | 'warning' | 'info') => void,
+  ): void {
     this.notificationCallbacks.push(callback)
   }
 
   /**
    * 通知コールバック関数を削除
    */
-  static unregisterNotificationCallback(callback: (message: string, type: 'error' | 'warning' | 'info') => void): void {
+  static unregisterNotificationCallback(
+    callback: (message: string, type: 'error' | 'warning' | 'info') => void,
+  ): void {
     const index = this.notificationCallbacks.indexOf(callback)
     if (index > -1) {
       this.notificationCallbacks.splice(index, 1)
@@ -97,7 +104,7 @@ export class TimezoneErrorHandler {
     if (!errorType) {
       return this.errorLog.length
     }
-    return this.errorLog.filter(error => error.type === errorType).length
+    return this.errorLog.filter((error) => error.type === errorType).length
   }
 
   /**
@@ -109,7 +116,7 @@ export class TimezoneErrorHandler {
       message: originalError
         ? `タイムゾーン検出に失敗しました: ${originalError.message}`
         : 'ブラウザからタイムゾーン情報を取得できませんでした',
-      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します'
+      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します',
     }
 
     this.handleError(error)
@@ -120,7 +127,7 @@ export class TimezoneErrorHandler {
       timezone: 'UTC',
       offset: 0,
       localTime: now,
-      utcTime: now
+      utcTime: now,
     }
   }
 
@@ -131,7 +138,7 @@ export class TimezoneErrorHandler {
     const error: TimezoneError = {
       type: 'invalid_timezone',
       message: `無効なタイムゾーン "${timezone}" が指定されました (操作: ${operation})`,
-      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します'
+      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します',
     }
 
     this.handleError(error)
@@ -144,7 +151,7 @@ export class TimezoneErrorHandler {
     const error: TimezoneError = {
       type: 'conversion_error',
       message: `${operation}中にエラーが発生しました: ${originalError.message}`,
-      fallbackAction: '元の値をそのまま使用します'
+      fallbackAction: '元の値をそのまま使用します',
     }
 
     this.handleError(error)
@@ -157,7 +164,7 @@ export class TimezoneErrorHandler {
     // タイムスタンプを追加
     const errorWithTimestamp = {
       ...error,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     this.errorLog.push(errorWithTimestamp as TimezoneError)
@@ -171,7 +178,9 @@ export class TimezoneErrorHandler {
   /**
    * エラータイプに応じた通知レベルを決定
    */
-  private static getNotificationType(errorType: TimezoneError['type']): 'error' | 'warning' | 'info' {
+  private static getNotificationType(
+    errorType: TimezoneError['type'],
+  ): 'error' | 'warning' | 'info' {
     switch (errorType) {
       case 'detection_failed':
         return 'warning' // 検出失敗は警告レベル（フォールバックで動作継続）
@@ -217,7 +226,7 @@ export class TimezoneService {
         timezone,
         offset,
         localTime: now,
-        utcTime: new Date(now.getTime())
+        utcTime: new Date(now.getTime()),
       }
     } catch (error) {
       return TimezoneErrorHandler.handleDetectionFailure(error as Error)
@@ -242,7 +251,7 @@ export class TimezoneService {
           timezone: 'UTC',
           offset: 0,
           localTime: date,
-          utcTime: date
+          utcTime: date,
         }
       }
 
@@ -254,7 +263,7 @@ export class TimezoneService {
         timezone,
         offset,
         localTime,
-        utcTime
+        utcTime,
       }
     } catch (error) {
       TimezoneErrorHandler.handleConversionError('タイムゾーン情報取得', error as Error)
@@ -264,7 +273,7 @@ export class TimezoneService {
         timezone: 'UTC',
         offset: 0,
         localTime: date,
-        utcTime: date
+        utcTime: date,
       }
     }
   }
@@ -292,14 +301,17 @@ export class TimezoneService {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: false,
       })
 
       const parts = formatter.formatToParts(utcDate)
-      const partsObj = parts.reduce((acc, part) => {
-        acc[part.type] = part.value
-        return acc
-      }, {} as Record<string, string>)
+      const partsObj = parts.reduce(
+        (acc, part) => {
+          acc[part.type] = part.value
+          return acc
+        },
+        {} as Record<string, string>,
+      )
 
       return new Date(
         parseInt(partsObj.year),
@@ -307,7 +319,7 @@ export class TimezoneService {
         parseInt(partsObj.day),
         parseInt(partsObj.hour),
         parseInt(partsObj.minute),
-        parseInt(partsObj.second)
+        parseInt(partsObj.second),
       )
     } catch (error) {
       TimezoneErrorHandler.handleConversionError('UTC→ローカル時刻変換', error as Error)
@@ -327,7 +339,7 @@ export class TimezoneService {
 
       // タイムゾーンオフセットを計算してUTCに変換
       const offset = this.getTimezoneOffset(localDate, timezone)
-      const utcTimestamp = localDate.getTime() - (offset * 60 * 1000)
+      const utcTimestamp = localDate.getTime() - offset * 60 * 1000
 
       return utcTimestamp
     } catch (error) {
@@ -350,7 +362,7 @@ export class TimezoneService {
         timeZone: timezone,
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
       })
 
       return formatter.format(date)
@@ -391,11 +403,11 @@ export class TimezoneService {
       // 標準的で確実な方法：Intl.DateTimeFormatを使用してオフセットを直接取得
       const formatter = new Intl.DateTimeFormat('en', {
         timeZone: timezone,
-        timeZoneName: 'longOffset'
+        timeZoneName: 'longOffset',
       })
 
       const parts = formatter.formatToParts(date)
-      const offsetPart = parts.find(part => part.type === 'timeZoneName')
+      const offsetPart = parts.find((part) => part.type === 'timeZoneName')
 
       if (offsetPart && offsetPart.value) {
         // "+09:00" や "-05:00" の形式をパース

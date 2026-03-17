@@ -36,13 +36,13 @@ describe('Timezone Services Integration', () => {
       {
         date: '2025-01-15',
         type: 'first',
-        timestamp: new Date('2025-01-15T10:00:00Z').getTime()
+        timestamp: new Date('2025-01-15T10:00:00Z').getTime(),
       },
       {
         date: '2025-01-14',
         type: 'first',
-        timestamp: new Date('2025-01-14T10:00:00Z').getTime()
-      }
+        timestamp: new Date('2025-01-14T10:00:00Z').getTime(),
+      },
     ]
 
     // カレンダー表示用に変換

@@ -7,14 +7,14 @@ import {
   recordExerciseWithTimezone,
   getRecordsWithTimezoneConversion,
   getAllRecords,
-  type ExerciseRecord
+  type ExerciseRecord,
 } from '../recordService'
 
 describe('RecordService Migration Functions', () => {
   const mockOldRecord: ExerciseRecord = {
     date: '2025-01-15',
     type: 'first',
-    timestamp: 1705123456789
+    timestamp: 1705123456789,
   }
 
   const mockTimezoneAwareRecord: ExerciseRecord = {
@@ -22,7 +22,7 @@ describe('RecordService Migration Functions', () => {
     type: 'first',
     timestamp: 1705123456789,
     timezone: 'Asia/Tokyo',
-    timezoneOffset: -540
+    timezoneOffset: -540,
   }
 
   describe('isTimezoneAwareRecord', () => {
@@ -37,7 +37,7 @@ describe('RecordService Migration Functions', () => {
     it('should return false for partially migrated records', () => {
       const partialRecord: ExerciseRecord = {
         ...mockOldRecord,
-        timezone: 'Asia/Tokyo'
+        timezone: 'Asia/Tokyo',
         // missing timezoneOffset and localTimestamp
       }
       expect(isTimezoneAwareRecord(partialRecord)).toBe(false)
@@ -86,8 +86,8 @@ describe('RecordService Migration Functions', () => {
         {
           date: '2025-01-16',
           type: 'second',
-          timestamp: 1705209856789
-        }
+          timestamp: 1705209856789,
+        },
       ]
 
       const migrated = migrateRecordsToTimezoneAware(oldRecords, 'Asia/Tokyo')
@@ -100,10 +100,7 @@ describe('RecordService Migration Functions', () => {
     })
 
     it('should handle mixed old and new format records', () => {
-      const mixedRecords: ExerciseRecord[] = [
-        mockOldRecord,
-        mockTimezoneAwareRecord
-      ]
+      const mixedRecords: ExerciseRecord[] = [mockOldRecord, mockTimezoneAwareRecord]
 
       const migrated = migrateRecordsToTimezoneAware(mixedRecords, 'Asia/Tokyo')
 
@@ -126,8 +123,8 @@ vi.mock('localforage', () => ({
     getItem: vi.fn(),
     setItem: vi.fn(),
     iterate: vi.fn(),
-    config: vi.fn()
-  }
+    config: vi.fn(),
+  },
 }))
 
 // Mock getAllRecords function
@@ -135,7 +132,7 @@ vi.mock('../recordService', async () => {
   const actual = await vi.importActual('../recordService')
   return {
     ...actual,
-    getAllRecords: vi.fn()
+    getAllRecords: vi.fn(),
   }
 })
 
@@ -150,7 +147,7 @@ describe('Timezone-Aware Record Functions', () => {
       // Mock localforage
       const mockLocalforage = {
         getItem: vi.fn().mockResolvedValue([]),
-        setItem: vi.fn().mockResolvedValue(undefined)
+        setItem: vi.fn().mockResolvedValue(undefined),
       }
 
       // This test verifies the function executes successfully
@@ -168,9 +165,9 @@ describe('Timezone-Aware Record Functions', () => {
       // Mock localforage.setItem to throw an error
       vi.mocked(localforage.setItem).mockRejectedValue(new Error('Storage error'))
 
-      await expect(recordExerciseWithTimezone('first'))
-        .rejects
-        .toThrow('Failed to record exercise with timezone information')
+      await expect(recordExerciseWithTimezone('first')).rejects.toThrow(
+        'Failed to record exercise with timezone information',
+      )
     })
   })
 
@@ -195,7 +192,7 @@ describe('Timezone-Aware Record Functions', () => {
         timestamp: new Date('2025-01-15T12:00:00Z').getTime(),
         timezone: 'Asia/Tokyo',
         timezoneOffset: -540,
-        localTimestamp: new Date('2025-01-15T21:00:00').getTime()
+        localTimestamp: new Date('2025-01-15T21:00:00').getTime(),
       }
 
       // Mock getAllRecords to return our test record
@@ -207,7 +204,7 @@ describe('Timezone-Aware Record Functions', () => {
       expect(records.length).toBeGreaterThan(0)
 
       // Find the record that was converted (not the migrated one)
-      const convertedRecord = records.find(r => r.timezone === 'America/New_York')
+      const convertedRecord = records.find((r) => r.timezone === 'America/New_York')
       expect(convertedRecord).toBeDefined()
 
       if (convertedRecord) {

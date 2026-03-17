@@ -92,7 +92,7 @@ export class TimezoneChangeDetector {
         this.currentTimezone = detectedTimezone
 
         // 全てのコールバックを実行
-        this.callbacks.forEach(callback => {
+        this.callbacks.forEach((callback) => {
           try {
             callback(detectedTimezone, oldTimezone)
           } catch (error) {

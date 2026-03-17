@@ -18,7 +18,7 @@ describe('ProfileView Timezone Features', () => {
       timestamp: 1723804800000, // 2025-08-16 12:00:00 UTC
       timezone: 'Asia/Tokyo',
       timezoneOffset: -540,
-      localTimestamp: 1723837200000 // 2025-08-16 21:00:00 JST
+      localTimestamp: 1723837200000, // 2025-08-16 21:00:00 JST
     },
     {
       date: '2025-08-15',
@@ -26,28 +26,28 @@ describe('ProfileView Timezone Features', () => {
       timestamp: 1723718400000, // 2025-08-15 12:00:00 UTC
       timezone: 'Asia/Tokyo',
       timezoneOffset: -540,
-      localTimestamp: 1723750800000 // 2025-08-15 21:00:00 JST
-    }
+      localTimestamp: 1723750800000, // 2025-08-15 21:00:00 JST
+    },
   ]
 
   const mockTimezoneInfo = {
     timezone: 'Asia/Tokyo',
     offset: -540,
     localTime: new Date('2025-08-16T21:00:00+09:00'),
-    utcTime: new Date('2025-08-16T12:00:00Z')
+    utcTime: new Date('2025-08-16T12:00:00Z'),
   }
 
   const mockCalendarDates = [
     {
       date: new Date('2025-08-16T12:00:00'),
       records: [mockRecords[0]],
-      localDateString: '2025-08-16'
+      localDateString: '2025-08-16',
     },
     {
       date: new Date('2025-08-15T12:00:00'),
       records: [mockRecords[1]],
-      localDateString: '2025-08-15'
-    }
+      localDateString: '2025-08-15',
+    },
   ]
 
   beforeEach(() => {
@@ -56,7 +56,9 @@ describe('ProfileView Timezone Features', () => {
 
     // Mock TimezoneService
     vi.mocked(TimezoneService.getCurrentTimezoneInfo).mockReturnValue(mockTimezoneInfo)
-    vi.mocked(TimezoneService.convertUTCToLocal).mockImplementation((timestamp) => new Date(timestamp))
+    vi.mocked(TimezoneService.convertUTCToLocal).mockImplementation(
+      (timestamp) => new Date(timestamp),
+    )
 
     // Mock DateUtils
     vi.mocked(DateUtils.calculateStreakWithTimezone).mockReturnValue(2)
@@ -72,7 +74,7 @@ describe('ProfileView Timezone Features', () => {
 
     // Wait for component to mount and load records
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(recordService.getRecordsWithTimezoneConversion).toHaveBeenCalled()
   })
@@ -82,7 +84,7 @@ describe('ProfileView Timezone Features', () => {
 
     // Wait for component to mount and load records
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     // Check that the longest streak uses timezone-aware calculation
     expect(DateUtils.calculateStreakWithTimezone).toHaveBeenCalledWith(mockRecords)
@@ -93,12 +95,9 @@ describe('ProfileView Timezone Features', () => {
 
     // Wait for component to mount and load records
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
-    expect(DateUtils.convertRecordsForCalendar).toHaveBeenCalledWith(
-      mockRecords,
-      'Asia/Tokyo'
-    )
+    expect(DateUtils.convertRecordsForCalendar).toHaveBeenCalledWith(mockRecords, 'Asia/Tokyo')
   })
 
   it('should detect current timezone on mount', async () => {
@@ -112,7 +111,7 @@ describe('ProfileView Timezone Features', () => {
 
     // Wait for component to mount and load records
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     const totalExercises = wrapper.find('.stat-value')
     expect(totalExercises.text()).toBe('2回')
@@ -123,7 +122,7 @@ describe('ProfileView Timezone Features', () => {
 
     // Wait for component to mount and load records
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     const statValues = wrapper.findAll('.stat-value')
     expect(statValues[1].text()).toBe('2日') // longest streak
@@ -144,7 +143,7 @@ describe('ProfileView Timezone Features', () => {
   it('should fallback to getAllRecords when timezone conversion fails', async () => {
     // Mock timezone conversion to fail
     vi.mocked(recordService.getRecordsWithTimezoneConversion).mockRejectedValue(
-      new Error('Timezone conversion failed')
+      new Error('Timezone conversion failed'),
     )
     vi.mocked(recordService.getAllRecords).mockResolvedValue(mockRecords)
 
@@ -152,7 +151,7 @@ describe('ProfileView Timezone Features', () => {
 
     // Wait for component to mount and load records
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(recordService.getAllRecords).toHaveBeenCalled()
   })

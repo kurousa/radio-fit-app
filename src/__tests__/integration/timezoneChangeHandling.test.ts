@@ -6,7 +6,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { timezoneChangeDetector } from '../../services/timezoneChangeDetector'
 import { TimezoneService } from '../../services/timezoneService'
-import { getRecordsWithTimezoneConversion, recordExerciseWithTimezone } from '../../services/recordService'
+import {
+  getRecordsWithTimezoneConversion,
+  recordExerciseWithTimezone,
+} from '../../services/recordService'
 import { DateUtils } from '../../services/dateUtils'
 import type { ExerciseRecord } from '../../services/recordService'
 
@@ -16,8 +19,8 @@ vi.mock('localforage', () => ({
     getItem: vi.fn(),
     setItem: vi.fn(),
     iterate: vi.fn(),
-    config: vi.fn()
-  }
+    config: vi.fn(),
+  },
 }))
 
 vi.mock('../../services/timezoneService')
@@ -39,10 +42,12 @@ describe('Timezone Change Handling Integration Tests', () => {
       return mockStorage.get(key) || null
     })
 
-    vi.mocked(localforage.default.setItem).mockImplementation(async (key: string, value: ExerciseRecord[]) => {
-      mockStorage.set(key, value)
-      return value
-    })
+    vi.mocked(localforage.default.setItem).mockImplementation(
+      async (key: string, value: ExerciseRecord[]) => {
+        mockStorage.set(key, value)
+        return value
+      },
+    )
 
     vi.mocked(localforage.default.iterate).mockImplementation(async (callback) => {
       for (const [key, value] of mockStorage.entries()) {
@@ -55,7 +60,7 @@ describe('Timezone Change Handling Integration Tests', () => {
       timezone: 'Asia/Tokyo',
       offset: -540,
       localTime: new Date('2025-01-15T09:30:00+09:00'),
-      utcTime: new Date('2025-01-15T00:30:00Z')
+      utcTime: new Date('2025-01-15T00:30:00Z'),
     })
 
     mockGetTimezoneInfo.mockImplementation((timezone: string, referenceDate?: Date) => {
@@ -65,22 +70,22 @@ describe('Timezone Change Handling Integration Tests', () => {
         return {
           timezone: 'Asia/Tokyo',
           offset: 540, // UTC+9 = +540分
-          localTime: new Date(date.getTime() + (9 * 60 * 60 * 1000)),
-          utcTime: date
+          localTime: new Date(date.getTime() + 9 * 60 * 60 * 1000),
+          utcTime: date,
         }
       } else if (timezone === 'America/New_York') {
         return {
           timezone: 'America/New_York',
           offset: -300, // UTC-5 = -300分
-          localTime: new Date(date.getTime() - (5 * 60 * 60 * 1000)),
-          utcTime: date
+          localTime: new Date(date.getTime() - 5 * 60 * 60 * 1000),
+          utcTime: date,
         }
       } else if (timezone === 'Europe/London') {
         return {
           timezone: 'Europe/London',
           offset: 0, // UTC = 0分
           localTime: date,
-          utcTime: date
+          utcTime: date,
         }
       }
 
@@ -88,7 +93,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'UTC',
         offset: 0,
         localTime: date,
-        utcTime: date
+        utcTime: date,
       }
     })
 
@@ -97,9 +102,9 @@ describe('Timezone Change Handling Integration Tests', () => {
       const tz = timezone || 'Asia/Tokyo'
 
       if (tz === 'Asia/Tokyo') {
-        return new Date(utcDate.getTime() + (9 * 60 * 60 * 1000))
+        return new Date(utcDate.getTime() + 9 * 60 * 60 * 1000)
       } else if (tz === 'America/New_York') {
-        return new Date(utcDate.getTime() - (5 * 60 * 60 * 1000))
+        return new Date(utcDate.getTime() - 5 * 60 * 60 * 1000)
       } else if (tz === 'Europe/London') {
         return new Date(utcDate.getTime())
       }
@@ -109,10 +114,10 @@ describe('Timezone Change Handling Integration Tests', () => {
     mockFormatLocalDate.mockImplementation((date: Date, timezone?: string) => {
       const tz = timezone || 'Asia/Tokyo'
       if (tz === 'Asia/Tokyo') {
-        const jstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000))
+        const jstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000)
         return jstDate.toISOString().split('T')[0]
       } else if (tz === 'America/New_York') {
-        const estDate = new Date(date.getTime() - (5 * 60 * 60 * 1000))
+        const estDate = new Date(date.getTime() - 5 * 60 * 60 * 1000)
         return estDate.toISOString().split('T')[0]
       }
       return date.toISOString().split('T')[0]
@@ -155,7 +160,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       // タイムゾーン変更を手動でトリガー
@@ -180,7 +185,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
       timezoneChangeDetector.forceCheck()
 
@@ -189,7 +194,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'Europe/London',
         offset: 0,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
       timezoneChangeDetector.forceCheck()
 
@@ -231,7 +236,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date('2025-01-14T19:30:00-05:00'),
-        utcTime: new Date('2025-01-15T00:30:00Z')
+        utcTime: new Date('2025-01-15T00:30:00Z'),
       })
 
       // 新しいタイムゾーンで記録を取得
@@ -246,7 +251,7 @@ describe('Timezone Change Handling Integration Tests', () => {
       const dates = [
         '2025-01-13T09:30:00+09:00',
         '2025-01-14T09:30:00+09:00',
-        '2025-01-15T09:30:00+09:00'
+        '2025-01-15T09:30:00+09:00',
       ]
 
       for (let i = 0; i < dates.length; i++) {
@@ -265,7 +270,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       // 新しいタイムゾーンでの連続日数を確認
@@ -283,7 +288,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300, // EST = UTC-5
         localTime: new Date('2025-03-08T08:30:00-05:00'),
-        utcTime: new Date('2025-03-08T13:30:00Z')
+        utcTime: new Date('2025-03-08T13:30:00Z'),
       })
       mockFormatLocalDate.mockReturnValue('2025-03-08')
 
@@ -295,7 +300,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 240, // EDT = UTC-4
         localTime: new Date('2025-03-10T08:30:00-04:00'),
-        utcTime: new Date('2025-03-10T12:30:00Z')
+        utcTime: new Date('2025-03-10T12:30:00Z'),
       })
       mockFormatLocalDate.mockReturnValue('2025-03-10')
 
@@ -306,8 +311,8 @@ describe('Timezone Change Handling Integration Tests', () => {
       expect(records).toHaveLength(2)
 
       // オフセットが正しく記録されることを確認
-      const record1 = records.find(r => r.date === '2025-03-08')
-      const record2 = records.find(r => r.date === '2025-03-10')
+      const record1 = records.find((r) => r.date === '2025-03-08')
+      const record2 = records.find((r) => r.date === '2025-03-10')
 
       expect(record1?.timezoneOffset).toBe(300) // EST
       expect(record2?.timezoneOffset).toBe(240) // EDT
@@ -343,7 +348,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'Europe/London',
         offset: 0,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       timezoneChangeDetector.forceCheck()
@@ -375,7 +380,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'Australia/Sydney',
         offset: -660,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       timezoneChangeDetector.forceCheck()
@@ -383,7 +388,10 @@ describe('Timezone Change Handling Integration Tests', () => {
       // エラーが発生してもアプリケーションが継続することを確認
       expect(errorCallback).toHaveBeenCalled()
       expect(normalCallback).toHaveBeenCalled()
-      expect(consoleSpy).toHaveBeenCalledWith('Error in timezone change callback:', expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error in timezone change callback:',
+        expect.any(Error),
+      )
 
       consoleSpy.mockRestore()
     })
@@ -402,7 +410,7 @@ describe('Timezone Change Handling Integration Tests', () => {
           timestamp: date.getTime(),
           timezone: 'Asia/Tokyo',
           timezoneOffset: -540,
-          localTimestamp: date.getTime() + (9 * 60 * 60 * 1000)
+          localTimestamp: date.getTime() + 9 * 60 * 60 * 1000,
         }
 
         mockStorage.set(dateString, [record])
@@ -415,7 +423,7 @@ describe('Timezone Change Handling Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       const records = await getRecordsWithTimezoneConversion('America/New_York')
@@ -428,7 +436,7 @@ describe('Timezone Change Handling Integration Tests', () => {
 
       // 全ての記録が変換されることを確認
       expect(records).toHaveLength(100)
-      records.forEach(record => {
+      records.forEach((record) => {
         expect(record.timezone).toBe('America/New_York')
       })
     })

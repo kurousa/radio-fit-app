@@ -59,14 +59,14 @@ onMounted(() => {
 }
 .logo {
   color: var(--color-text);
-  color: var(--color-text);
+
   font-weight: bold;
   font-size: 20px;
 }
 .main-nav a {
   margin-left: 20px;
   text-decoration: none;
-  color: var(--color-text);
+
   font-weight: 500;
   padding: 5px; /* Increase hit area slightly */
   border-radius: 4px; /* for focus ring */

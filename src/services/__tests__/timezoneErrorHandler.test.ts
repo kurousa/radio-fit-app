@@ -30,7 +30,7 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'detection_failed',
         message: 'テストエラー',
-        fallbackAction: 'フォールバック処理'
+        fallbackAction: 'フォールバック処理',
       }
 
       TimezoneErrorHandler.handleError(error)
@@ -47,19 +47,16 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'conversion_error',
         message: 'テスト変換エラー',
-        fallbackAction: 'フォールバック処理'
+        fallbackAction: 'フォールバック処理',
       }
 
       TimezoneErrorHandler.handleError(error)
 
       expect(mockConsoleError).toHaveBeenCalledWith(
         'Timezone Error [conversion_error]:',
-        'テスト変換エラー'
+        'テスト変換エラー',
       )
-      expect(mockConsoleInfo).toHaveBeenCalledWith(
-        'Fallback action:',
-        'フォールバック処理'
-      )
+      expect(mockConsoleInfo).toHaveBeenCalledWith('Fallback action:', 'フォールバック処理')
     })
 
     it('登録されたコールバック関数を呼び出す', () => {
@@ -69,14 +66,14 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'invalid_timezone',
         message: 'テスト無効タイムゾーン',
-        fallbackAction: 'フォールバック処理'
+        fallbackAction: 'フォールバック処理',
       }
 
       TimezoneErrorHandler.handleError(error)
 
       expect(mockCallback).toHaveBeenCalledWith(
         'タイムゾーン設定に問題があります。標準時刻で表示されます。',
-        'warning'
+        'warning',
       )
     })
   })
@@ -113,17 +110,14 @@ describe('TimezoneErrorHandler', () => {
 
       expect(mockConsoleError).toHaveBeenCalledWith(
         'Notification callback error:',
-        expect.any(Error)
+        expect.any(Error),
       )
     })
 
     it('フォールバックとしてコンソールログを出力する', () => {
       TimezoneErrorHandler.showUserNotification('テストメッセージ', 'warning')
 
-      expect(mockConsoleWarn).toHaveBeenCalledWith(
-        'User Notification:',
-        'テストメッセージ'
-      )
+      expect(mockConsoleWarn).toHaveBeenCalledWith('User Notification:', 'テストメッセージ')
     })
   })
 
@@ -171,13 +165,13 @@ describe('TimezoneErrorHandler', () => {
       const error1: TimezoneError = {
         type: 'detection_failed',
         message: 'エラー1',
-        fallbackAction: 'フォールバック1'
+        fallbackAction: 'フォールバック1',
       }
 
       const error2: TimezoneError = {
         type: 'conversion_error',
         message: 'エラー2',
-        fallbackAction: 'フォールバック2'
+        fallbackAction: 'フォールバック2',
       }
 
       TimezoneErrorHandler.handleError(error1)
@@ -195,7 +189,7 @@ describe('TimezoneErrorHandler', () => {
         const error: TimezoneError = {
           type: 'detection_failed',
           message: `エラー${i}`,
-          fallbackAction: 'フォールバック'
+          fallbackAction: 'フォールバック',
         }
         TimezoneErrorHandler.handleError(error)
       }
@@ -210,19 +204,19 @@ describe('TimezoneErrorHandler', () => {
       const error1: TimezoneError = {
         type: 'detection_failed',
         message: 'エラー1',
-        fallbackAction: 'フォールバック1'
+        fallbackAction: 'フォールバック1',
       }
 
       const error2: TimezoneError = {
         type: 'conversion_error',
         message: 'エラー2',
-        fallbackAction: 'フォールバック2'
+        fallbackAction: 'フォールバック2',
       }
 
       const error3: TimezoneError = {
         type: 'detection_failed',
         message: 'エラー3',
-        fallbackAction: 'フォールバック3'
+        fallbackAction: 'フォールバック3',
       }
 
       TimezoneErrorHandler.handleError(error1)
@@ -239,7 +233,7 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'detection_failed',
         message: 'テストエラー',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       }
 
       TimezoneErrorHandler.handleError(error)
@@ -296,14 +290,14 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'detection_failed',
         message: 'テストメッセージ',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       }
 
       TimezoneErrorHandler.handleError(error)
 
       expect(mockCallback).toHaveBeenCalledWith(
         'タイムゾーンの自動検出ができませんでした。UTC時刻で表示されます。',
-        'warning'
+        'warning',
       )
     })
 
@@ -314,14 +308,14 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'invalid_timezone',
         message: 'テストメッセージ',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       }
 
       TimezoneErrorHandler.handleError(error)
 
       expect(mockCallback).toHaveBeenCalledWith(
         'タイムゾーン設定に問題があります。標準時刻で表示されます。',
-        'warning'
+        'warning',
       )
     })
 
@@ -332,14 +326,14 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'conversion_error',
         message: 'テストメッセージ',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       }
 
       TimezoneErrorHandler.handleError(error)
 
       expect(mockCallback).toHaveBeenCalledWith(
         '時刻の変換処理でエラーが発生しました。表示が正しくない可能性があります。',
-        'error'
+        'error',
       )
     })
   })
@@ -353,37 +347,28 @@ describe('TimezoneErrorHandler', () => {
       TimezoneErrorHandler.handleError({
         type: 'detection_failed',
         message: 'テスト',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       })
 
-      expect(mockCallback).toHaveBeenLastCalledWith(
-        expect.any(String),
-        'warning'
-      )
+      expect(mockCallback).toHaveBeenLastCalledWith(expect.any(String), 'warning')
 
       // invalid_timezone -> warning
       TimezoneErrorHandler.handleError({
         type: 'invalid_timezone',
         message: 'テスト',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       })
 
-      expect(mockCallback).toHaveBeenLastCalledWith(
-        expect.any(String),
-        'warning'
-      )
+      expect(mockCallback).toHaveBeenLastCalledWith(expect.any(String), 'warning')
 
       // conversion_error -> error
       TimezoneErrorHandler.handleError({
         type: 'conversion_error',
         message: 'テスト',
-        fallbackAction: 'フォールバック'
+        fallbackAction: 'フォールバック',
       })
 
-      expect(mockCallback).toHaveBeenLastCalledWith(
-        expect.any(String),
-        'error'
-      )
+      expect(mockCallback).toHaveBeenLastCalledWith(expect.any(String), 'error')
     })
   })
 })

@@ -25,7 +25,7 @@ describe('useNotifications', () => {
   it('should load settings from localStorage', () => {
     localStorage.setItem(
       'radio-fit-app-notification-settings',
-      JSON.stringify({ isEnabled: true, time: '10:30' })
+      JSON.stringify({ isEnabled: true, time: '10:30' }),
     )
     const { isEnabled, notificationTime } = useNotifications()
     expect(isEnabled.value).toBe(true)

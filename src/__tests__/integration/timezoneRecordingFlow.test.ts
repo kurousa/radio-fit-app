@@ -10,7 +10,7 @@ import {
   getRecordsWithTimezoneConversion,
   migrateAllRecordsToTimezoneAware,
   migrateRecordToTimezoneAware,
-  isTimezoneAwareRecord
+  isTimezoneAwareRecord,
 } from '../../services/recordService'
 import { TimezoneService } from '../../services/timezoneService'
 import { DateUtils } from '../../services/dateUtils'
@@ -22,8 +22,8 @@ vi.mock('localforage', () => ({
     getItem: vi.fn(),
     setItem: vi.fn(),
     iterate: vi.fn(),
-    config: vi.fn()
-  }
+    config: vi.fn(),
+  },
 }))
 
 vi.mock('../../services/timezoneService')
@@ -46,10 +46,12 @@ describe('Timezone Recording Flow Integration Tests', () => {
       return mockStorage.get(key) || null
     })
 
-    vi.mocked(localforage.default.setItem).mockImplementation(async (key: string, value: ExerciseRecord[]) => {
-      mockStorage.set(key, value)
-      return value
-    })
+    vi.mocked(localforage.default.setItem).mockImplementation(
+      async (key: string, value: ExerciseRecord[]) => {
+        mockStorage.set(key, value)
+        return value
+      },
+    )
 
     vi.mocked(localforage.default.iterate).mockImplementation(async (callback) => {
       for (const [key, value] of mockStorage.entries()) {
@@ -62,7 +64,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       timezone: 'Asia/Tokyo',
       offset: -540, // JST = UTC-9
       localTime: new Date('2025-01-15T09:30:00+09:00'),
-      utcTime: new Date('2025-01-15T00:30:00Z')
+      utcTime: new Date('2025-01-15T00:30:00Z'),
     })
 
     mockGetTimezoneInfo.mockImplementation((timezone: string, referenceDate?: Date) => {
@@ -72,15 +74,15 @@ describe('Timezone Recording Flow Integration Tests', () => {
         return {
           timezone: 'Asia/Tokyo',
           offset: 540, // UTC+9 = +540分
-          localTime: new Date(date.getTime() + (9 * 60 * 60 * 1000)),
-          utcTime: date
+          localTime: new Date(date.getTime() + 9 * 60 * 60 * 1000),
+          utcTime: date,
         }
       } else if (timezone === 'America/New_York') {
         return {
           timezone: 'America/New_York',
           offset: -300, // UTC-5 = -300分
-          localTime: new Date(date.getTime() - (5 * 60 * 60 * 1000)),
-          utcTime: date
+          localTime: new Date(date.getTime() - 5 * 60 * 60 * 1000),
+          utcTime: date,
         }
       }
 
@@ -88,7 +90,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         timezone: 'UTC',
         offset: 0,
         localTime: date,
-        utcTime: date
+        utcTime: date,
       }
     })
 
@@ -97,9 +99,9 @@ describe('Timezone Recording Flow Integration Tests', () => {
       const tz = timezone || 'Asia/Tokyo'
 
       if (tz === 'Asia/Tokyo') {
-        return new Date(utcDate.getTime() + (9 * 60 * 60 * 1000))
+        return new Date(utcDate.getTime() + 9 * 60 * 60 * 1000)
       } else if (tz === 'America/New_York') {
-        return new Date(utcDate.getTime() - (5 * 60 * 60 * 1000))
+        return new Date(utcDate.getTime() - 5 * 60 * 60 * 1000)
       }
       return utcDate
     })
@@ -130,7 +132,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         date: '2025-01-15',
         type: 'first',
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540
+        timezoneOffset: -540,
       })
     })
 
@@ -155,7 +157,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       mockFormatLocalDate.mockReturnValue('2025-01-14')
@@ -172,7 +174,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       const dates = [
         '2025-01-13T09:30:00+09:00',
         '2025-01-14T09:30:00+09:00',
-        '2025-01-15T09:30:00+09:00'
+        '2025-01-15T09:30:00+09:00',
       ]
 
       for (let i = 0; i < dates.length; i++) {
@@ -186,7 +188,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       expect(allRecords).toHaveLength(3)
 
       // 記録が正しく保存されていることを確認
-      const recordDates = allRecords.map(r => r.date).sort()
+      const recordDates = allRecords.map((r) => r.date).sort()
       expect(recordDates).toEqual(['2025-01-13', '2025-01-14', '2025-01-15'])
 
       // 連続日数を計算
@@ -201,7 +203,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       const timezones = [
         { tz: 'Asia/Tokyo', offset: -540, date: '2025-01-15' },
         { tz: 'America/New_York', offset: 300, date: '2025-01-14' },
-        { tz: 'Europe/London', offset: 0, date: '2025-01-15' }
+        { tz: 'Europe/London', offset: 0, date: '2025-01-15' },
       ]
 
       for (const { tz, offset, date } of timezones) {
@@ -209,7 +211,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
           timezone: tz,
           offset,
           localTime: new Date(),
-          utcTime: new Date()
+          utcTime: new Date(),
         })
         mockFormatLocalDate.mockReturnValue(date)
 
@@ -221,12 +223,8 @@ describe('Timezone Recording Flow Integration Tests', () => {
       expect(allRecords).toHaveLength(3)
 
       // 各記録が正しいタイムゾーン情報を持つことを確認
-      const recordTimezones = allRecords.map(r => r.timezone).sort()
-      expect(recordTimezones).toEqual([
-        'America/New_York',
-        'Asia/Tokyo',
-        'Europe/London'
-      ])
+      const recordTimezones = allRecords.map((r) => r.timezone).sort()
+      expect(recordTimezones).toEqual(['America/New_York', 'Asia/Tokyo', 'Europe/London'])
     })
 
     it('should handle daylight saving time transitions', async () => {
@@ -236,7 +234,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 300, // EST
         localTime: new Date('2025-03-08T08:30:00-05:00'),
-        utcTime: new Date('2025-03-08T13:30:00Z')
+        utcTime: new Date('2025-03-08T13:30:00Z'),
       })
       mockFormatLocalDate.mockReturnValue('2025-03-08')
 
@@ -248,7 +246,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         timezone: 'America/New_York',
         offset: 240, // EDT
         localTime: new Date('2025-03-10T08:30:00-04:00'),
-        utcTime: new Date('2025-03-10T12:30:00Z')
+        utcTime: new Date('2025-03-10T12:30:00Z'),
       })
       mockFormatLocalDate.mockReturnValue('2025-03-10')
 
@@ -271,7 +269,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       const legacyRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: new Date('2025-01-10T00:30:00Z').getTime()
+        timestamp: new Date('2025-01-10T00:30:00Z').getTime(),
         // timezone, timezoneOffset, localTimestamp は未定義
       }
 
@@ -288,7 +286,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         date: '2025-01-10',
         type: 'first',
         timezone: expect.any(String),
-        timezoneOffset: expect.any(Number)
+        timezoneOffset: expect.any(Number),
       })
     })
 
@@ -300,7 +298,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         timestamp: new Date('2025-01-12T00:30:00Z').getTime(),
         timezone: 'Europe/London',
         timezoneOffset: 0,
-        localTimestamp: new Date('2025-01-12T00:30:00Z').getTime()
+        localTimestamp: new Date('2025-01-12T00:30:00Z').getTime(),
       }
 
       mockStorage.set('2025-01-12', [timezoneAwareRecord])
@@ -319,7 +317,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       const legacyRecord: ExerciseRecord = {
         date: '2025-01-08',
         type: 'first',
-        timestamp: new Date('2025-01-08T00:30:00Z').getTime()
+        timestamp: new Date('2025-01-08T00:30:00Z').getTime(),
       }
 
       const timezoneAwareRecord: ExerciseRecord = {
@@ -328,7 +326,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         timestamp: new Date('2025-01-09T01:00:00Z').getTime(),
         timezone: 'America/New_York',
         timezoneOffset: 300,
-        localTimestamp: new Date('2025-01-08T20:00:00-05:00').getTime()
+        localTimestamp: new Date('2025-01-08T20:00:00-05:00').getTime(),
       }
 
       mockStorage.set('2025-01-08', [legacyRecord])
@@ -364,14 +362,16 @@ describe('Timezone Recording Flow Integration Tests', () => {
       vi.mocked(localforage.default.setItem).mockRejectedValue(new Error('Storage quota exceeded'))
 
       // エラーが適切に伝播されることを確認
-      await expect(recordExerciseWithTimezone('first')).rejects.toThrow('Failed to record exercise with timezone information')
+      await expect(recordExerciseWithTimezone('first')).rejects.toThrow(
+        'Failed to record exercise with timezone information',
+      )
     })
 
     it('should handle invalid timezone data in migration', async () => {
       const invalidRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: 'invalid-timestamp' as any
+        timestamp: 'invalid-timestamp' as any,
       }
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -394,7 +394,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
         const record: ExerciseRecord = {
           date: dateString,
           type: i % 2 === 0 ? 'first' : 'second',
-          timestamp: date.getTime()
+          timestamp: date.getTime(),
           // タイムゾーン情報なし（レガシー記録）
         }
 
@@ -414,7 +414,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       // 全ての記録がマイグレーションされることを確認
       const allRecords = await getAllRecords()
       expect(allRecords).toHaveLength(100)
-      allRecords.forEach(record => {
+      allRecords.forEach((record) => {
         expect(isTimezoneAwareRecord(record)).toBe(true)
       })
     })

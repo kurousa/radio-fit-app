@@ -48,7 +48,7 @@ export async function getAllRecords(): Promise<ExerciseRecord[]> {
  */
 export async function recordExerciseWithTimezone(
   type: 'first' | 'second',
-  customDate?: Date
+  customDate?: Date,
 ): Promise<void> {
   try {
     // 現在のタイムゾーン情報を取得
@@ -67,7 +67,7 @@ export async function recordExerciseWithTimezone(
       type,
       timestamp: utcTimestamp,
       timezone: timezoneInfo.timezone,
-      timezoneOffset: timezoneInfo.offset
+      timezoneOffset: timezoneInfo.offset,
     }
 
     // 既存の記録を取得
@@ -79,7 +79,9 @@ export async function recordExerciseWithTimezone(
     // 保存
     await localforage.setItem(localDateString, existingRecords)
 
-    console.log(`タイムゾーン対応記録を保存しました: ${localDateString} - ${type} (${timezoneInfo.timezone})`)
+    console.log(
+      `タイムゾーン対応記録を保存しました: ${localDateString} - ${type} (${timezoneInfo.timezone})`,
+    )
   } catch (error) {
     console.error('タイムゾーン対応記録の保存に失敗しました:', error)
     throw new Error('Failed to record exercise with timezone information')
@@ -92,7 +94,7 @@ export async function recordExerciseWithTimezone(
  * @returns タイムゾーン変換された記録の配列
  */
 export async function getRecordsWithTimezoneConversion(
-  targetTimezone?: string
+  targetTimezone?: string,
 ): Promise<ExerciseRecord[]> {
   try {
     // 全ての記録を取得
@@ -105,7 +107,7 @@ export async function getRecordsWithTimezoneConversion(
     const timezone = targetTimezone || TimezoneService.getCurrentTimezoneInfo().timezone
 
     // 各記録をターゲットタイムゾーンに変換
-    const convertedRecords = migratedRecords.map(record => {
+    const convertedRecords = migratedRecords.map((record) => {
       try {
         // 既にターゲットタイムゾーンの場合はそのまま返す
         if (record.timezone === timezone) {
@@ -123,7 +125,7 @@ export async function getRecordsWithTimezoneConversion(
           ...record,
           date: localDateString,
           timezone: timezone,
-          timezoneOffset: timezoneInfo.offset
+          timezoneOffset: timezoneInfo.offset,
         }
       } catch (error) {
         console.error(`記録の変換に失敗しました (ID: ${record.date}-${record.type}):`, error)
@@ -153,7 +155,7 @@ export async function getRecordsWithTimezoneConversion(
  */
 export function migrateRecordToTimezoneAware(
   record: ExerciseRecord,
-  timezone?: string
+  timezone?: string,
 ): ExerciseRecord {
   // 既にタイムゾーン情報がある場合はそのまま返す
   if (record.timezone && record.timezoneOffset !== undefined) {
@@ -184,14 +186,17 @@ export function migrateRecordToTimezoneAware(
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: false
+      hour12: false,
     })
 
     const parts = formatter.formatToParts(utcDate)
-    const partsObj = parts.reduce((acc, part) => {
-      acc[part.type] = part.value
-      return acc
-    }, {} as Record<string, string>)
+    const partsObj = parts.reduce(
+      (acc, part) => {
+        acc[part.type] = part.value
+        return acc
+      },
+      {} as Record<string, string>,
+    )
 
     const localDate = new Date(
       parseInt(partsObj.year),
@@ -199,7 +204,7 @@ export function migrateRecordToTimezoneAware(
       parseInt(partsObj.day),
       parseInt(partsObj.hour),
       parseInt(partsObj.minute),
-      parseInt(partsObj.second)
+      parseInt(partsObj.second),
     )
 
     const timezoneOffset = Math.round((localDate.getTime() - utcDate.getTime()) / (1000 * 60))
@@ -207,7 +212,7 @@ export function migrateRecordToTimezoneAware(
     return {
       ...record,
       timezone: targetTimezone,
-      timezoneOffset
+      timezoneOffset,
     }
   } catch (error) {
     console.error('Failed to migrate record to timezone-aware:', error)
@@ -224,9 +229,9 @@ export function migrateRecordToTimezoneAware(
  */
 export function migrateRecordsToTimezoneAware(
   records: ExerciseRecord[],
-  timezone?: string
+  timezone?: string,
 ): ExerciseRecord[] {
-  return records.map(record => migrateRecordToTimezoneAware(record, timezone))
+  return records.map((record) => migrateRecordToTimezoneAware(record, timezone))
 }
 
 /**
@@ -235,8 +240,7 @@ export function migrateRecordsToTimezoneAware(
  * @returns タイムゾーン対応済みの場合true
  */
 export function isTimezoneAwareRecord(record: ExerciseRecord): boolean {
-  return !!(record.timezone &&
-           record.timezoneOffset !== undefined)
+  return !!(record.timezone && record.timezoneOffset !== undefined)
 }
 
 /**
@@ -266,8 +270,9 @@ export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
       const migratedRecords = migrateRecordsToTimezoneAware(records)
 
       // マイグレーションが必要だった記録があるかチェック
-      const needsMigration = records.some((record, index) =>
-        !isTimezoneAwareRecord(record) && isTimezoneAwareRecord(migratedRecords[index])
+      const needsMigration = records.some(
+        (record, index) =>
+          !isTimezoneAwareRecord(record) && isTimezoneAwareRecord(migratedRecords[index]),
       )
 
       if (needsMigration) {
