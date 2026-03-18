@@ -1,10 +1,16 @@
 <template>
   <div class="exercises-container">
     <div class="video-selection-buttons">
-      <button @click="selectExercise('first')" :class="{ active: selectedExerciseType === 'first' }">
+      <button
+        @click="selectExercise('first')"
+        :class="{ active: selectedExerciseType === 'first' }"
+      >
         ラジオ体操 第一
       </button>
-      <button @click="selectExercise('second')" :class="{ active: selectedExerciseType === 'second' }">
+      <button
+        @click="selectExercise('second')"
+        :class="{ active: selectedExerciseType === 'second' }"
+      >
         ラジオ体操 第二
       </button>
     </div>
@@ -12,8 +18,11 @@
     <div class="player-wrapper">
       <!-- YouTubePlayer コンポーネントを使用 -->
       <!-- isAudioOnlyMode が false の時のみ動画プレイヤーを表示 -->
-      <YouTubePlayer v-show="!isAudioOnlyMode" :video-id="videoIds[selectedExerciseType]"
-        class="youtube-player-component" />
+      <YouTubePlayer
+        v-show="!isAudioOnlyMode"
+        :video-id="videoIds[selectedExerciseType]"
+        class="youtube-player-component"
+      />
       <!-- <YouTubePlayer
         v-if="!isAudioOnlyMode"
         :video-id="videoIds[selectedExerciseType]"
@@ -22,7 +31,11 @@
 
       <!-- 音声のみモード時に表示するコンテンツ -->
       <div v-show="isAudioOnlyMode" class="audio-only-visual">
-        <img src="@/assets/radio-taiso-illustration.png" alt="ラジオ体操" class="taiso-illustration" />
+        <img
+          src="@/assets/radio-taiso-illustration.png"
+          alt="ラジオ体操"
+          class="taiso-illustration"
+        />
         <p class="audio-status-text">音声のみ再生中...</p>
         <button @click="toggleAudioOnly" class="toggle-video-button">動画に戻す</button>
       </div>

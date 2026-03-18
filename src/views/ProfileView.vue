@@ -251,7 +251,7 @@ watch(
   () => {
     updateCalendarAttributes()
   },
-  { deep: true }
+  { deep: true },
 )
 </script>
 
@@ -267,14 +267,14 @@ watch(
 .page-title {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: var(--color-text);
   margin-bottom: 30px;
   text-align: center;
 }
 
 /* 各セクションの共通スタイル */
 section {
-  background-color: white;
+  background-color: var(--color-background-soft);
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* 影 */
@@ -286,13 +286,13 @@ h3 {
   font-size: 22px;
   color: #007bff; /* メインカラー */
   margin-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0; /* 下線 */
+  border-bottom: 2px solid var(--color-border); /* 下線 */
   padding-bottom: 10px;
 }
 
 /* カレンダーラッパー */
 .calendar-wrapper {
-  background-color: white;
+  background-color: var(--color-background-soft);
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   padding: 20px;
@@ -332,14 +332,15 @@ h3 {
 
 /* 各統計項目 */
 .stat-item {
-  background-color: #e6f2ff; /* 明るい青 */
+  background-color: rgba(0, 123, 255, 0.1); /* 明るい青 */
   padding: 20px;
   border-radius: 12px;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* 内側の影 */
 }
 .stat-label {
   font-size: 16px;
-  color: #555;
+  color: var(--color-text);
+  opacity: 0.8;
   margin-bottom: 5px;
 }
 .stat-value {
@@ -354,7 +355,8 @@ h3 {
   margin-top: 25px;
   font-size: 18px;
   font-style: italic;
-  color: #444;
+  color: var(--color-text);
+  opacity: 0.9;
   text-align: center;
   line-height: 1.5;
 }
@@ -365,14 +367,14 @@ h3 {
   justify-content: space-between;
   align-items: center;
   padding: 15px 0;
-  border-bottom: 1px solid #eee; /* 項目間の区切り線 */
+  border-bottom: 1px solid var(--color-border); /* 項目間の区切り線 */
 }
 .settings-section .setting-item:last-child {
   border-bottom: none; /* 最後の項目は下線なし */
 }
 .settings-section label {
   font-size: 18px;
-  color: #333;
+  color: var(--color-text);
 }
 .settings-section input[type='checkbox'] {
   transform: scale(1.5); /* チェックボックスを少し大きく表示 */
@@ -380,7 +382,7 @@ h3 {
 }
 .settings-section input[type='time'] {
   padding: 8px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;

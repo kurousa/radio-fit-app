@@ -47,13 +47,13 @@ describe('DateUtils', () => {
         {
           date: today.toISOString().split('T')[0],
           type: 'first',
-          timestamp: today.getTime()
+          timestamp: today.getTime(),
         },
         {
           date: yesterday.toISOString().split('T')[0],
           type: 'first',
-          timestamp: yesterday.getTime()
-        }
+          timestamp: yesterday.getTime(),
+        },
       ]
 
       const result = DateUtils.calculateStreakWithTimezone(records)
@@ -65,8 +65,8 @@ describe('DateUtils', () => {
         {
           date: '2025-01-15',
           type: 'first',
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       ]
 
       const result = DateUtils.calculateStreakWithTimezone(records)
@@ -81,13 +81,13 @@ describe('DateUtils', () => {
         {
           date: '2025-01-15',
           type: 'first',
-          timestamp: new Date('2025-01-15T10:00:00Z').getTime()
+          timestamp: new Date('2025-01-15T10:00:00Z').getTime(),
         },
         {
           date: '2025-01-15',
           type: 'second',
-          timestamp: new Date('2025-01-15T11:00:00Z').getTime()
-        }
+          timestamp: new Date('2025-01-15T11:00:00Z').getTime(),
+        },
       ]
 
       const result = DateUtils.convertRecordsForCalendar(records, 'UTC')
@@ -106,8 +106,8 @@ describe('DateUtils', () => {
         {
           date: '2025-01-15',
           type: 'first',
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       ]
 
       const result = DateUtils.convertRecordsForCalendar(records, 'Invalid/Timezone')
@@ -163,7 +163,9 @@ describe('DateUtils', () => {
       const now = new Date()
       const today = now.toISOString().split('T')[0]
       const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-      const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0]
 
       const records: ExerciseRecord[] = [
         {
@@ -171,22 +173,22 @@ describe('DateUtils', () => {
           type: 'first',
           timestamp: now.getTime(),
           timezone: 'Asia/Tokyo',
-          timezoneOffset: -540
+          timezoneOffset: -540,
         },
         {
           date: yesterday,
           type: 'first',
           timestamp: now.getTime() - 24 * 60 * 60 * 1000,
           timezone: 'America/New_York',
-          timezoneOffset: 300
+          timezoneOffset: 300,
         },
         {
           date: twoDaysAgo,
           type: 'first',
           timestamp: now.getTime() - 2 * 24 * 60 * 60 * 1000,
           timezone: 'Europe/London',
-          timezoneOffset: 0
-        }
+          timezoneOffset: 0,
+        },
       ]
 
       const streak = DateUtils.calculateStreakWithTimezone(records)
@@ -204,15 +206,15 @@ describe('DateUtils', () => {
           type: 'first',
           timestamp: baseTime,
           timezone: 'Asia/Tokyo',
-          timezoneOffset: -540
+          timezoneOffset: -540,
         },
         {
           date: '2025-01-15',
           type: 'second',
           timestamp: baseTime + 3600000, // 1時間後
           timezone: 'America/New_York',
-          timezoneOffset: 300
-        }
+          timezoneOffset: 300,
+        },
       ]
 
       const calendarData = DateUtils.convertRecordsForCalendar(records, 'UTC')
@@ -226,7 +228,7 @@ describe('DateUtils', () => {
     it('should correctly compare dates across DST boundaries', () => {
       // サマータイム開始日の前後
       const beforeDST = new Date('2025-03-08T12:00:00Z') // DST開始前日
-      const afterDST = new Date('2025-03-10T12:00:00Z')  // DST開始翌日
+      const afterDST = new Date('2025-03-10T12:00:00Z') // DST開始翌日
 
       const isSame = DateUtils.isSameLocalDate(beforeDST, afterDST, 'America/New_York')
       expect(isSame).toBe(false)
@@ -265,10 +267,14 @@ describe('DateUtils', () => {
       const lateFirstDay = new Date('2025-01-01T14:00:00Z')
 
       const tokyoDifferentDays = DateUtils.isSameLocalDate(earlyLastDay, lateFirstDay, 'Asia/Tokyo')
-      const nyDifferentDays = DateUtils.isSameLocalDate(earlyLastDay, lateFirstDay, 'America/New_York')
+      const nyDifferentDays = DateUtils.isSameLocalDate(
+        earlyLastDay,
+        lateFirstDay,
+        'America/New_York',
+      )
 
       expect(tokyoDifferentDays).toBe(false) // 東京では異なる日
-      expect(nyDifferentDays).toBe(false)    // NYでも異なる日
+      expect(nyDifferentDays).toBe(false) // NYでも異なる日
     })
   })
 
@@ -285,7 +291,7 @@ describe('DateUtils', () => {
           type: i % 2 === 0 ? 'first' : 'second',
           timestamp: date.getTime(),
           timezone: 'Asia/Tokyo',
-          timezoneOffset: -540
+          timezoneOffset: -540,
         })
       }
 
@@ -309,13 +315,13 @@ describe('DateUtils', () => {
         {
           date: '',
           type: 'first',
-          timestamp: 0
+          timestamp: 0,
         },
         {
           date: '2025-01-15',
           type: 'first',
-          timestamp: NaN
-        }
+          timestamp: NaN,
+        },
       ]
 
       expect(() => {
@@ -332,13 +338,11 @@ describe('DateUtils', () => {
       const timezone = 'Asia/Tokyo'
 
       // 同じ入力で複数回呼び出し
-      const results = Array.from({ length: 10 }, () =>
-        DateUtils.isToday(testDate, timezone)
-      )
+      const results = Array.from({ length: 10 }, () => DateUtils.isToday(testDate, timezone))
 
       // すべて同じ結果であることを確認
       const firstResult = results[0]
-      expect(results.every(result => result === firstResult)).toBe(true)
+      expect(results.every((result) => result === firstResult)).toBe(true)
     })
 
     it('should handle concurrent timezone operations', async () => {
@@ -347,7 +351,7 @@ describe('DateUtils', () => {
 
       // 並行処理でタイムゾーン変換
       const promises = timezones.map(async (timezone) => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             const result = DateUtils.isToday(testDate, timezone)
             resolve({ timezone, result })
@@ -358,7 +362,7 @@ describe('DateUtils', () => {
       const results = await Promise.all(promises)
 
       expect(results).toHaveLength(4)
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).toHaveProperty('timezone')
         expect(result).toHaveProperty('result')
         expect(typeof (result as { timezone: string; result: boolean }).result).toBe('boolean')

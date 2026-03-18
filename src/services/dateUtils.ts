@@ -75,7 +75,7 @@ export class DateUtils {
    */
   static convertRecordsForCalendar(
     records: ExerciseRecord[],
-    displayTimezone: string
+    displayTimezone: string,
   ): CalendarDate[] {
     try {
       const recordsByDate = this.groupRecordsByLocalDate(records, displayTimezone)
@@ -87,7 +87,7 @@ export class DateUtils {
         return {
           date,
           records: dayRecords,
-          localDateString: dateStr
+          localDateString: dateStr,
         }
       })
     } catch (error) {
@@ -102,7 +102,7 @@ export class DateUtils {
    */
   private static groupRecordsByLocalDate(
     records: ExerciseRecord[],
-    timezone: string
+    timezone: string,
   ): Record<string, ExerciseRecord[]> {
     const grouped: Record<string, ExerciseRecord[]> = {}
 
@@ -134,7 +134,7 @@ export class DateUtils {
     if (records.length === 0) return 0
 
     const today = new Date().toISOString().split('T')[0]
-    const uniqueDates = [...new Set(records.map(r => r.date))].sort().reverse()
+    const uniqueDates = [...new Set(records.map((r) => r.date))].sort().reverse()
 
     let streak = 0
     let expectedDate = today
@@ -170,7 +170,7 @@ export class DateUtils {
     return Object.entries(recordsByDate).map(([dateStr, dayRecords]) => ({
       date: new Date(dateStr + 'T12:00:00'),
       records: dayRecords,
-      localDateString: dateStr
+      localDateString: dateStr,
     }))
   }
 

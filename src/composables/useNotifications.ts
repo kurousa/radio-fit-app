@@ -16,11 +16,7 @@ let nextId = 1
 
 // --- Composable for Toast Notifications ---
 export function useToastNotifications() {
-  const addToast = (
-    message: string,
-    type: ToastNotification['type'] = 'info',
-    duration = 5000
-  ) => {
+  const addToast = (message: string, type: ToastNotification['type'] = 'info', duration = 5000) => {
     const id = nextId++
     toastNotifications.value.push({ id, message, type, duration })
     if (duration > 0) {

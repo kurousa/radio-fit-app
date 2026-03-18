@@ -18,8 +18,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'home', component: HomeView },
-    { path: '/exercises', name: 'exercises', component: {} }
-  ]
+    { path: '/exercises', name: 'exercises', component: {} },
+  ],
 })
 
 describe('HomeView', () => {
@@ -33,8 +33,8 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     expect(wrapper.find('.greeting-text').text()).toBe('おはようございます！')
@@ -48,13 +48,13 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     // コンポーネントがマウントされるまで待機
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(wrapper.find('.streak-count').text()).toBe('0日')
   })
@@ -66,15 +66,15 @@ describe('HomeView', () => {
         type: 'first',
         timestamp: 1705123456789,
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540
+        timezoneOffset: -540,
       },
       {
         date: '2025-01-14',
         type: 'first',
         timestamp: 1705037056789,
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540
-      }
+        timezoneOffset: -540,
+      },
     ]
 
     mockRecordService.getAllRecords.mockResolvedValue(mockRecords)
@@ -82,13 +82,13 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     // コンポーネントがマウントされるまで待機
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     // DateUtils.calculateStreakWithTimezoneが呼ばれることを確認
     expect(mockDateUtils.calculateStreakWithTimezone).toHaveBeenCalledWith(mockRecords)
@@ -102,15 +102,15 @@ describe('HomeView', () => {
         type: 'first',
         timestamp: 1705123456789,
         timezone: 'America/New_York',
-        timezoneOffset: 300
+        timezoneOffset: 300,
       },
       {
         date: '2025-01-14',
         type: 'first',
         timestamp: 1705037056789,
         timezone: 'Asia/Tokyo',
-        timezoneOffset: -540
-      }
+        timezoneOffset: -540,
+      },
     ]
 
     mockRecordService.getAllRecords.mockResolvedValue(mockRecords)
@@ -118,12 +118,12 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     // 異なるタイムゾーンの記録でもDateUtilsが正しく処理することを確認
     expect(mockDateUtils.calculateStreakWithTimezone).toHaveBeenCalledWith(mockRecords)
@@ -135,12 +135,12 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(wrapper.find('.streak-count').text()).toBe('0日')
   })
@@ -151,8 +151,8 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const firstButton = wrapper.find('.exercise-button.first')
@@ -173,7 +173,7 @@ describe('HomeView', () => {
       type: 'first' as const,
       timestamp: Date.now() - i * 24 * 60 * 60 * 1000,
       timezone: 'Asia/Tokyo',
-      timezoneOffset: -540
+      timezoneOffset: -540,
     }))
 
     mockRecordService.getAllRecords.mockResolvedValue(mockRecords)
@@ -181,12 +181,12 @@ describe('HomeView', () => {
 
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     await wrapper.vm.$nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(mockDateUtils.calculateStreakWithTimezone).toHaveBeenCalledWith(mockRecords)
     expect(wrapper.find('.streak-count').text()).toBe('30日')

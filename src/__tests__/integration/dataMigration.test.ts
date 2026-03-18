@@ -9,7 +9,7 @@ import {
   migrateRecordToTimezoneAware,
   migrateRecordsToTimezoneAware,
   isTimezoneAwareRecord,
-  getAllRecords
+  getAllRecords,
 } from '../../services/recordService'
 import { TimezoneService } from '../../services/timezoneService'
 import type { ExerciseRecord } from '../../services/recordService'
@@ -20,8 +20,8 @@ vi.mock('localforage', () => ({
     getItem: vi.fn(),
     setItem: vi.fn(),
     iterate: vi.fn(),
-    config: vi.fn()
-  }
+    config: vi.fn(),
+  },
 }))
 
 vi.mock('../../services/timezoneService')
@@ -40,10 +40,12 @@ describe('Data Migration Integration Tests', () => {
       return mockStorage.get(key) || null
     })
 
-    vi.mocked(localforage.default.setItem).mockImplementation(async (key: string, value: ExerciseRecord[]) => {
-      mockStorage.set(key, value)
-      return value
-    })
+    vi.mocked(localforage.default.setItem).mockImplementation(
+      async (key: string, value: ExerciseRecord[]) => {
+        mockStorage.set(key, value)
+        return value
+      },
+    )
 
     vi.mocked(localforage.default.iterate).mockImplementation(async (callback) => {
       for (const [key, value] of mockStorage.entries()) {
@@ -56,7 +58,7 @@ describe('Data Migration Integration Tests', () => {
       timezone: 'Asia/Tokyo',
       offset: -540,
       localTime: new Date('2025-01-15T09:30:00+09:00'),
-      utcTime: new Date('2025-01-15T00:30:00Z')
+      utcTime: new Date('2025-01-15T00:30:00Z'),
     })
 
     vi.useFakeTimers()
@@ -75,7 +77,7 @@ describe('Data Migration Integration Tests', () => {
       const legacyRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: new Date('2025-01-10T00:30:00Z').getTime()
+        timestamp: new Date('2025-01-10T00:30:00Z').getTime(),
         // timezone, timezoneOffset, localTimestamp は未定義
       }
 
@@ -92,7 +94,7 @@ describe('Data Migration Integration Tests', () => {
         type: 'first',
         timestamp: legacyRecord.timestamp,
         timezone: expect.any(String),
-        timezoneOffset: expect.any(Number)
+        timezoneOffset: expect.any(Number),
       })
     })
 
@@ -102,18 +104,18 @@ describe('Data Migration Integration Tests', () => {
         {
           date: '2025-01-08',
           type: 'first',
-          timestamp: new Date('2025-01-08T00:30:00Z').getTime()
+          timestamp: new Date('2025-01-08T00:30:00Z').getTime(),
         },
         {
           date: '2025-01-09',
           type: 'second',
-          timestamp: new Date('2025-01-09T01:00:00Z').getTime()
+          timestamp: new Date('2025-01-09T01:00:00Z').getTime(),
         },
         {
           date: '2025-01-10',
           type: 'first',
-          timestamp: new Date('2025-01-10T00:45:00Z').getTime()
-        }
+          timestamp: new Date('2025-01-10T00:45:00Z').getTime(),
+        },
       ]
 
       // マイグレーションを実行
@@ -139,7 +141,7 @@ describe('Data Migration Integration Tests', () => {
         timestamp: new Date('2025-01-12T00:30:00Z').getTime(),
         timezone: 'Europe/London',
         timezoneOffset: 0,
-        localTimestamp: new Date('2025-01-12T00:30:00Z').getTime()
+        localTimestamp: new Date('2025-01-12T00:30:00Z').getTime(),
       }
 
       // マイグレーションを実行
@@ -155,7 +157,7 @@ describe('Data Migration Integration Tests', () => {
         {
           date: '2025-01-08',
           type: 'first',
-          timestamp: new Date('2025-01-08T00:30:00Z').getTime()
+          timestamp: new Date('2025-01-08T00:30:00Z').getTime(),
         },
         // タイムゾーン対応済み記録
         {
@@ -164,21 +166,21 @@ describe('Data Migration Integration Tests', () => {
           timestamp: new Date('2025-01-09T01:00:00Z').getTime(),
           timezone: 'America/New_York',
           timezoneOffset: 300,
-          localTimestamp: new Date('2025-01-08T20:00:00-05:00').getTime()
+          localTimestamp: new Date('2025-01-08T20:00:00-05:00').getTime(),
         },
         // レガシー記録
         {
           date: '2025-01-10',
           type: 'first',
-          timestamp: new Date('2025-01-10T00:45:00Z').getTime()
-        }
+          timestamp: new Date('2025-01-10T00:45:00Z').getTime(),
+        },
       ]
 
       const migratedRecords = migrateRecordsToTimezoneAware(mixedRecords)
 
       // 全ての記録がタイムゾーン対応になることを確認
       expect(migratedRecords).toHaveLength(3)
-      migratedRecords.forEach(record => {
+      migratedRecords.forEach((record) => {
         expect(isTimezoneAwareRecord(record)).toBe(true)
       })
 
@@ -195,28 +197,32 @@ describe('Data Migration Integration Tests', () => {
     it('should migrate entire database', async () => {
       // 複数日のレガシー記録を作成
       const legacyData = {
-        '2025-01-08': [{
-          date: '2025-01-08',
-          type: 'first' as const,
-          timestamp: new Date('2025-01-08T00:30:00Z').getTime()
-        }],
+        '2025-01-08': [
+          {
+            date: '2025-01-08',
+            type: 'first' as const,
+            timestamp: new Date('2025-01-08T00:30:00Z').getTime(),
+          },
+        ],
         '2025-01-09': [
           {
             date: '2025-01-09',
             type: 'first' as const,
-            timestamp: new Date('2025-01-09T00:30:00Z').getTime()
+            timestamp: new Date('2025-01-09T00:30:00Z').getTime(),
           },
           {
             date: '2025-01-09',
             type: 'second' as const,
-            timestamp: new Date('2025-01-09T01:00:00Z').getTime()
-          }
+            timestamp: new Date('2025-01-09T01:00:00Z').getTime(),
+          },
         ],
-        '2025-01-10': [{
-          date: '2025-01-10',
-          type: 'second' as const,
-          timestamp: new Date('2025-01-10T00:45:00Z').getTime()
-        }]
+        '2025-01-10': [
+          {
+            date: '2025-01-10',
+            type: 'second' as const,
+            timestamp: new Date('2025-01-10T00:45:00Z').getTime(),
+          },
+        ],
       }
 
       // レガシーデータをストレージに設定
@@ -246,7 +252,7 @@ describe('Data Migration Integration Tests', () => {
       const invalidRecord = {
         date: '2025-01-11',
         type: 'first' as const,
-        timestamp: 'invalid-timestamp' as unknown
+        timestamp: 'invalid-timestamp' as unknown,
       }
 
       mockStorage.set('2025-01-11', [invalidRecord])
@@ -265,21 +271,25 @@ describe('Data Migration Integration Tests', () => {
     it('should skip already migrated records', async () => {
       // 一部がマイグレーション済み、一部がレガシーのデータ
       const mixedData = {
-        '2025-01-08': [{
-          date: '2025-01-08',
-          type: 'first' as const,
-          timestamp: new Date('2025-01-08T00:30:00Z').getTime()
-          // レガシー記録
-        }],
-        '2025-01-09': [{
-          date: '2025-01-09',
-          type: 'second' as const,
-          timestamp: new Date('2025-01-09T00:30:00Z').getTime(),
-          timezone: 'Asia/Tokyo',
-          timezoneOffset: -540,
-          localTimestamp: new Date('2025-01-09T09:30:00+09:00').getTime()
-          // 既にマイグレーション済み
-        }]
+        '2025-01-08': [
+          {
+            date: '2025-01-08',
+            type: 'first' as const,
+            timestamp: new Date('2025-01-08T00:30:00Z').getTime(),
+            // レガシー記録
+          },
+        ],
+        '2025-01-09': [
+          {
+            date: '2025-01-09',
+            type: 'second' as const,
+            timestamp: new Date('2025-01-09T00:30:00Z').getTime(),
+            timezone: 'Asia/Tokyo',
+            timezoneOffset: -540,
+            localTimestamp: new Date('2025-01-09T09:30:00+09:00').getTime(),
+            // 既にマイグレーション済み
+          },
+        ],
       }
 
       for (const [date, records] of Object.entries(mixedData)) {
@@ -304,7 +314,7 @@ describe('Data Migration Integration Tests', () => {
       const legacyRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: new Date('2025-01-10T00:30:00Z').getTime()
+        timestamp: new Date('2025-01-10T00:30:00Z').getTime(),
       }
 
       // カスタムタイムゾーンでマイグレーション
@@ -319,7 +329,7 @@ describe('Data Migration Integration Tests', () => {
       const legacyRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: new Date('2025-01-10T00:30:00Z').getTime()
+        timestamp: new Date('2025-01-10T00:30:00Z').getTime(),
       }
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -345,7 +355,7 @@ describe('Data Migration Integration Tests', () => {
         const record: ExerciseRecord = {
           date: dateString,
           type: i % 2 === 0 ? 'first' : 'second',
-          timestamp: date.getTime()
+          timestamp: date.getTime(),
           // タイムゾーン情報なし
         }
 
@@ -365,7 +375,7 @@ describe('Data Migration Integration Tests', () => {
       // 全ての記録がマイグレーションされることを確認
       const allRecords = await getAllRecords()
       expect(allRecords).toHaveLength(100)
-      allRecords.forEach(record => {
+      allRecords.forEach((record) => {
         expect(isTimezoneAwareRecord(record)).toBe(true)
       })
     })
@@ -374,18 +384,18 @@ describe('Data Migration Integration Tests', () => {
       // 複数日の記録を作成
       const dates = ['2025-01-08', '2025-01-09', '2025-01-10', '2025-01-11', '2025-01-12']
 
-      dates.forEach(date => {
+      dates.forEach((date) => {
         const records = [
           {
             date,
             type: 'first' as const,
-            timestamp: new Date(`${date}T00:30:00Z`).getTime()
+            timestamp: new Date(`${date}T00:30:00Z`).getTime(),
           },
           {
             date,
             type: 'second' as const,
-            timestamp: new Date(`${date}T01:00:00Z`).getTime()
-          }
+            timestamp: new Date(`${date}T01:00:00Z`).getTime(),
+          },
         ]
         mockStorage.set(date, records)
       })
@@ -406,7 +416,7 @@ describe('Data Migration Integration Tests', () => {
       const originalRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: new Date('2025-01-10T00:30:00Z').getTime()
+        timestamp: new Date('2025-01-10T00:30:00Z').getTime(),
       }
 
       const migratedRecord = migrateRecordToTimezoneAware(originalRecord)
@@ -426,14 +436,14 @@ describe('Data Migration Integration Tests', () => {
       const edgeCases = [
         new Date('2025-01-01T00:00:00Z').getTime(), // 正常な日付
         new Date('2025-12-31T23:59:59Z').getTime(), // 年末
-        Date.now() // 現在時刻
+        Date.now(), // 現在時刻
       ]
 
       for (const timestamp of edgeCases) {
         const record: ExerciseRecord = {
           date: new Date(timestamp).toISOString().split('T')[0],
           type: 'first',
-          timestamp
+          timestamp,
         }
 
         const migratedRecord = migrateRecordToTimezoneAware(record)

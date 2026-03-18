@@ -5,14 +5,14 @@ import ExercisesView from '../ExercisesView.vue'
 
 // Mock the recordService
 vi.mock('../../services/recordService', () => ({
-  recordExerciseWithTimezone: vi.fn().mockResolvedValue(undefined)
+  recordExerciseWithTimezone: vi.fn().mockResolvedValue(undefined),
 }))
 
 // Mock the timezoneService
 vi.mock('../../services/timezoneService', () => ({
   TimezoneErrorHandler: {
-    showUserNotification: vi.fn()
-  }
+    showUserNotification: vi.fn(),
+  },
 }))
 
 // Mock the YouTubePlayer component
@@ -20,8 +20,8 @@ vi.mock('../../components/YoutubePlayer.vue', () => ({
   default: {
     name: 'YouTubePlayer',
     template: '<div class="youtube-player-mock">YouTube Player Mock</div>',
-    props: ['video-id']
-  }
+    props: ['video-id'],
+  },
 }))
 
 describe('ExercisesView', () => {
@@ -30,17 +30,15 @@ describe('ExercisesView', () => {
   beforeEach(() => {
     router = createRouter({
       history: createWebHistory(),
-      routes: [
-        { path: '/exercises', component: ExercisesView }
-      ]
+      routes: [{ path: '/exercises', component: ExercisesView }],
     })
   })
 
   it('should render correctly', async () => {
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     expect(wrapper.find('.exercises-container').exists()).toBe(true)
@@ -51,8 +49,8 @@ describe('ExercisesView', () => {
   it('should have exercise selection buttons', async () => {
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const buttons = wrapper.findAll('.video-selection-buttons button')
@@ -64,8 +62,8 @@ describe('ExercisesView', () => {
   it('should have complete exercise button', async () => {
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const completeButton = wrapper.find('.complete-button')
@@ -78,8 +76,8 @@ describe('ExercisesView', () => {
 
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const completeButton = wrapper.find('.complete-button')
@@ -91,8 +89,8 @@ describe('ExercisesView', () => {
   it('should show completion popup after successful recording', async () => {
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const completeButton = wrapper.find('.complete-button')
@@ -112,8 +110,8 @@ describe('ExercisesView', () => {
 
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const completeButton = wrapper.find('.complete-button')
@@ -136,8 +134,8 @@ describe('ExercisesView', () => {
 
     const wrapper = mount(ExercisesView, {
       global: {
-        plugins: [router]
-      }
+        plugins: [router],
+      },
     })
 
     const completeButton = wrapper.find('.complete-button')
@@ -147,7 +145,7 @@ describe('ExercisesView', () => {
     await wrapper.vm.$nextTick()
 
     expect(TimezoneErrorHandler.showUserNotification).toHaveBeenCalledWith(
-      expect.stringContaining('記録保存エラー')
+      expect.stringContaining('記録保存エラー'),
     )
   })
 })

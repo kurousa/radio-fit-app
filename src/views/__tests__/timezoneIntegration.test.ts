@@ -14,7 +14,7 @@ describe('Timezone Change Integration', () => {
       timezone: 'Asia/Tokyo',
       offset: -540,
       localTime: new Date(),
-      utcTime: new Date()
+      utcTime: new Date(),
     })
 
     // シングルトンインスタンスをリセット
@@ -57,7 +57,7 @@ describe('Timezone Change Integration', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       // タイムゾーン変更を手動でトリガー
@@ -108,7 +108,7 @@ describe('Timezone Change Integration', () => {
         timezone: 'Europe/London',
         offset: 0,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       timezoneChangeDetector.forceCheck()
@@ -140,7 +140,7 @@ describe('Timezone Change Integration', () => {
         timezone: 'Australia/Sydney',
         offset: -660,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       timezoneChangeDetector.forceCheck()
@@ -148,7 +148,10 @@ describe('Timezone Change Integration', () => {
       // エラーが発生してもアプリケーションが継続することを確認
       expect(errorCallback).toHaveBeenCalled()
       expect(normalCallback).toHaveBeenCalled()
-      expect(consoleSpy).toHaveBeenCalledWith('Error in timezone change callback:', expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error in timezone change callback:',
+        expect.any(Error),
+      )
 
       consoleSpy.mockRestore()
     })
@@ -164,7 +167,7 @@ describe('Timezone Change Integration', () => {
         timezone: 'Pacific/Auckland',
         offset: -720,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       // 30秒経過をシミュレート

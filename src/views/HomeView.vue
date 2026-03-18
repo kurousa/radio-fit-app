@@ -108,16 +108,17 @@ export default defineComponent({
 .greeting-text {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: var(--color-text);
   margin-bottom: 10px;
 }
 .today-message {
   font-size: 20px;
-  color: #666;
+  color: var(--color-text);
+  opacity: 0.8;
 }
 
 .streak-section {
-  background-color: #fff;
+  background-color: var(--color-background-soft);
   padding: 30px 50px;
   border-radius: 20px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
@@ -128,7 +129,8 @@ export default defineComponent({
 }
 .streak-label {
   font-size: 18px;
-  color: #777;
+  color: var(--color-text);
+  opacity: 0.7;
   margin-bottom: 10px;
 }
 .streak-count {

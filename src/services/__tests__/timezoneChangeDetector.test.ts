@@ -5,8 +5,8 @@ import { TimezoneService } from '../timezoneService'
 // TimezoneServiceをモック
 vi.mock('../timezoneService', () => ({
   TimezoneService: {
-    getCurrentTimezoneInfo: vi.fn()
-  }
+    getCurrentTimezoneInfo: vi.fn(),
+  },
 }))
 
 describe('TimezoneChangeDetector', () => {
@@ -24,7 +24,7 @@ describe('TimezoneChangeDetector', () => {
       timezone: 'Asia/Tokyo',
       offset: -540,
       localTime: new Date(),
-      utcTime: new Date()
+      utcTime: new Date(),
     })
 
     detector = TimezoneChangeDetector.getInstance()
@@ -105,7 +105,7 @@ describe('TimezoneChangeDetector', () => {
         timezone: 'America/New_York',
         offset: 300,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       // 30秒経過をシミュレート
@@ -140,7 +140,7 @@ describe('TimezoneChangeDetector', () => {
         timezone: 'Europe/London',
         offset: 0,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       vi.advanceTimersByTime(30000)
@@ -167,14 +167,17 @@ describe('TimezoneChangeDetector', () => {
         timezone: 'Europe/London',
         offset: 0,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       vi.advanceTimersByTime(30000)
 
       expect(errorCallback).toHaveBeenCalled()
       expect(normalCallback).toHaveBeenCalled()
-      expect(consoleSpy).toHaveBeenCalledWith('Error in timezone change callback:', expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error in timezone change callback:',
+        expect.any(Error),
+      )
 
       consoleSpy.mockRestore()
     })
@@ -218,7 +221,7 @@ describe('TimezoneChangeDetector', () => {
         timezone: 'Australia/Sydney',
         offset: -660,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       detector.forceCheck()
@@ -239,7 +242,7 @@ describe('TimezoneChangeDetector', () => {
         timezone: 'Pacific/Auckland',
         offset: -720,
         localTime: new Date(),
-        utcTime: new Date()
+        utcTime: new Date(),
       })
 
       // ページが非表示になる
