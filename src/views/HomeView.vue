@@ -51,7 +51,7 @@ export default defineComponent({
     /**
      * タイムゾーン変更時の処理
      */
-    const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
+    const handleTimezoneChange = async () => {
       // 連続日数を再計算
       await calculateStreak()
     }

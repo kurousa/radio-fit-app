@@ -219,7 +219,7 @@ const updateCalendarAttributes = () => {
     calendarAttributes.value = fallbackAttributes
   }
 }
-const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
+const handleTimezoneChange = async (newTimezone: string) => {
   currentTimezone.value = newTimezone
   await loadRecords()
 }

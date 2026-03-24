@@ -78,10 +78,6 @@ export async function recordExerciseWithTimezone(
 
     // 保存
     await localforage.setItem(localDateString, existingRecords)
-
-    console.log(
-      `タイムゾーン対応記録を保存しました: ${localDateString} - ${type} (${timezoneInfo.timezone})`,
-    )
   } catch (error) {
     console.error('タイムゾーン対応記録の保存に失敗しました:', error)
     throw new Error('Failed to record exercise with timezone information')
