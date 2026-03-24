@@ -137,8 +137,6 @@ export default defineComponent({
         setTimeout(() => {
           showCompletionPopup.value = false
         }, 2000) // 2秒後にポップアップを非表示
-
-        console.log(`タイムゾーン対応記録が完了しました: ${selectedExerciseType.value}`)
       } catch (error) {
         // エラー時のユーザー通知
         console.error('記録の保存中にエラーが発生しました:', error)
