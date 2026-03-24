@@ -52,12 +52,8 @@ export default defineComponent({
      * タイムゾーン変更時の処理
      */
     const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
-      console.log(`HomeView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
-
       // 連続日数を再計算
       await calculateStreak()
-
-      console.log('HomeView: 連続日数が新しいタイムゾーンで再計算されました')
     }
 
     const goToExercise = (type: 'first' | 'second') => {

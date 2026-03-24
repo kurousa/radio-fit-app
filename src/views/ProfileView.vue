@@ -143,7 +143,6 @@ const motivationalMessage = computed(() => {
 const loadRecords = async () => {
   try {
     allRecords.value = await getRecordsWithTimezoneConversion()
-    console.log('タイムゾーン対応記録がロードされました:', allRecords.value)
   } catch (error) {
     console.error('記録の読み込みに失敗しました:', error)
     allRecords.value = await getAllRecords()
@@ -198,7 +197,6 @@ const updateCalendarAttributes = () => {
       }
     })
     calendarAttributes.value = attributes
-    console.log(`カレンダー属性が更新されました (${currentTimezone}):`, calendarAttributes.value)
   } catch (error) {
     console.error('カレンダー属性の更新に失敗しました:', error)
     const recordedDates = allRecords.value.map((record) => record.date)
@@ -219,14 +217,11 @@ const updateCalendarAttributes = () => {
       }
     })
     calendarAttributes.value = fallbackAttributes
-    console.log('フォールバック方式でカレンダー属性を更新しました:', calendarAttributes.value)
   }
 }
 const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
-  console.log(`ProfileView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
   currentTimezone.value = newTimezone
   await loadRecords()
-  console.log('ProfileView: カレンダー表示が新しいタイムゾーンで更新されました')
 }
 onMounted(async () => {
   try {
