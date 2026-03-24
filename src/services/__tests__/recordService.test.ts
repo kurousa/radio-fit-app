@@ -3,6 +3,7 @@ import localforage from 'localforage'
 import {
   migrateRecordToTimezoneAware,
   migrateRecordsToTimezoneAware,
+  migrateAllRecordsToTimezoneAware,
   isTimezoneAwareRecord,
   recordExerciseWithTimezone,
   getRecordsWithTimezoneConversion,
@@ -218,6 +219,99 @@ describe('Timezone-Aware Record Functions', () => {
         // Verify the date was converted to New York timezone
         expect(convertedRecord.date).toBe('2025-01-14') // Should be previous day due to timezone difference
       }
+    })
+  })
+
+  describe('migrateAllRecordsToTimezoneAware', () => {
+    it('should migrate multiple legacy records across different dates', async () => {
+      const legacyRecords: ExerciseRecord[] = [
+        {
+          date: '2025-01-15',
+          type: 'first',
+          timestamp: 1736942400000, // 2025-01-15T12:00:00Z
+        },
+        {
+          date: '2025-01-16',
+          type: 'second',
+          timestamp: 1737028800000, // 2025-01-16T12:00:00Z
+        },
+      ]
+
+      vi.mocked(getAllRecords).mockResolvedValue(legacyRecords)
+      const setItemSpy = vi.mocked(localforage.setItem)
+
+      await migrateAllRecordsToTimezoneAware()
+
+      expect(setItemSpy).toHaveBeenCalledTimes(2)
+      expect(setItemSpy).toHaveBeenCalledWith('2025-01-15', expect.any(Array))
+      expect(setItemSpy).toHaveBeenCalledWith('2025-01-16', expect.any(Array))
+
+      const firstCallArgs = setItemSpy.mock.calls.find((call) => call[0] === '2025-01-15')
+      expect(firstCallArgs?.[1][0].timezone).toBeDefined()
+      expect(firstCallArgs?.[1][0].timezoneOffset).toBeDefined()
+    })
+
+    it('should skip records that are already timezone-aware', async () => {
+      const awareRecords: ExerciseRecord[] = [
+        {
+          date: '2025-01-15',
+          type: 'first',
+          timestamp: 1736942400000,
+          timezone: 'Asia/Tokyo',
+          timezoneOffset: -540,
+        },
+      ]
+
+      vi.mocked(getAllRecords).mockResolvedValue(awareRecords)
+      const setItemSpy = vi.mocked(localforage.setItem)
+
+      await migrateAllRecordsToTimezoneAware()
+
+      expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it('should handle mixed legacy and timezone-aware records', async () => {
+      const mixedRecords: ExerciseRecord[] = [
+        {
+          date: '2025-01-15',
+          type: 'first',
+          timestamp: 1736942400000,
+          timezone: 'Asia/Tokyo',
+          timezoneOffset: -540,
+        },
+        {
+          date: '2025-01-15',
+          type: 'second',
+          timestamp: 1736946000000,
+          // legacy
+        },
+      ]
+
+      vi.mocked(getAllRecords).mockResolvedValue(mixedRecords)
+      const setItemSpy = vi.mocked(localforage.setItem)
+
+      await migrateAllRecordsToTimezoneAware()
+
+      expect(setItemSpy).toHaveBeenCalledTimes(1)
+      expect(setItemSpy).toHaveBeenCalledWith('2025-01-15', expect.any(Array))
+      const savedRecords = setItemSpy.mock.calls[0][1]
+      expect(savedRecords[0].timezone).toBe('Asia/Tokyo')
+      expect(savedRecords[1].timezone).toBeDefined()
+    })
+
+    it('should throw error when localforage.setItem fails', async () => {
+      const legacyRecords: ExerciseRecord[] = [
+        {
+          date: '2025-01-15',
+          type: 'first',
+          timestamp: 1736942400000,
+        },
+      ]
+
+      vi.mocked(getAllRecords).mockResolvedValue(legacyRecords)
+      vi.mocked(localforage.setItem).mockRejectedValue(new Error('Storage error'))
+
+      await expect(migrateAllRecordsToTimezoneAware()).rejects.toThrow('Record migration failed')
     })
   })
 })
