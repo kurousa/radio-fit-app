@@ -266,7 +266,7 @@ export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
     }
 
     // 各日付の記録をマイグレーション
-    for (const [date, records] of Object.entries(recordsByDate)) {
+    const migrationPromises = Object.entries(recordsByDate).map(async ([date, records]) => {
       const migratedRecords = migrateRecordsToTimezoneAware(records)
 
       // マイグレーションが必要だった記録があるかチェック
@@ -277,9 +277,14 @@ export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
 
       if (needsMigration) {
         await localforage.setItem(date, migratedRecords)
-        migratedCount += migratedRecords.length
+        return migratedRecords.length
       }
-    }
+      return 0
+    })
+
+    // すべてのマイグレーションを並列で実行し、マイグレーションされた件数を集計
+    const results = await Promise.all(migrationPromises)
+    migratedCount = results.reduce((acc, count) => acc + count, 0)
 
     console.log(`Migration completed. ${migratedCount} records were migrated.`)
   } catch (error) {
