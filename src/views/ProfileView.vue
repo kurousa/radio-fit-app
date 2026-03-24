@@ -219,11 +219,9 @@ const updateCalendarAttributes = () => {
     calendarAttributes.value = fallbackAttributes
   }
 }
-const handleTimezoneChange = async (newTimezone: string, oldTimezone: string) => {
-  console.log(`ProfileView: タイムゾーン変更を検出: ${oldTimezone} → ${newTimezone}`)
+const handleTimezoneChange = async (newTimezone: string) => {
   currentTimezone.value = newTimezone
   await loadRecords()
-  console.log('ProfileView: カレンダー表示が新しいタイムゾーンで更新されました')
 }
 onMounted(async () => {
   try {
