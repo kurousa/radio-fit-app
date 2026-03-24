@@ -246,7 +246,9 @@ describe('Timezone-Aware Record Functions', () => {
       expect(setItemSpy).toHaveBeenCalledWith('2025-01-15', expect.any(Array))
       expect(setItemSpy).toHaveBeenCalledWith('2025-01-16', expect.any(Array))
 
-      const firstCallArgs = setItemSpy.mock.calls.find((call) => call[0] === '2025-01-15')
+      const firstCallArgs = setItemSpy.mock.calls.find((call) => call[0] === '2025-01-15') as
+        | [string, ExerciseRecord[]]
+        | undefined
       expect(firstCallArgs?.[1][0].timezone).toBeDefined()
       expect(firstCallArgs?.[1][0].timezoneOffset).toBeDefined()
     })
@@ -294,7 +296,7 @@ describe('Timezone-Aware Record Functions', () => {
 
       expect(setItemSpy).toHaveBeenCalledTimes(1)
       expect(setItemSpy).toHaveBeenCalledWith('2025-01-15', expect.any(Array))
-      const savedRecords = setItemSpy.mock.calls[0][1]
+      const savedRecords = setItemSpy.mock.calls[0][1] as ExerciseRecord[]
       expect(savedRecords[0].timezone).toBe('Asia/Tokyo')
       expect(savedRecords[1].timezone).toBeDefined()
     })
