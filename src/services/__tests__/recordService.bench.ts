@@ -32,7 +32,7 @@ describe('migrateAllRecordsToTimezoneAware Benchmark', () => {
     const numDays = 100
     // Populate with records that need migration
     for (let i = 0; i < numDays; i++) {
-      const date = `2025-01-${String(i + 1).padStart(2, '0')}`
+      const date = new Date(2025, 0, i + 1).toISOString().split('T')[0]
       mockStore[date] = [
         {
           date,
