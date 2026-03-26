@@ -23,11 +23,6 @@
         :video-id="videoIds[selectedExerciseType]"
         class="youtube-player-component"
       />
-      <!-- <YouTubePlayer
-        v-if="!isAudioOnlyMode"
-        :video-id="videoIds[selectedExerciseType]"
-        class="youtube-player-component"
-      /> -->
 
       <!-- 音声のみモード時に表示するコンテンツ -->
       <div v-show="isAudioOnlyMode" class="audio-only-visual">
