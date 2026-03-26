@@ -24,7 +24,7 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 
 ## 開発環境の構築
 
-1. Node.jsとnpm (または yarn) をインストールします。
+1. Node.jsとnpmをインストールします。
 2. リポジトリをクローンします。
 
    ```bash
@@ -41,8 +41,6 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 
    ```bash
    npm install
-   # または
-   yarn install
    ```
 
 ## 実行方法
@@ -51,8 +49,6 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 
    ```bash
    npm run dev
-   # または
-   yarn dev
    ```
 
 2. ブラウザで `http://localhost:5173` にアクセスします。
@@ -61,8 +57,6 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 
 ```bash
 npm run build
-# または
-yarn build
 ```
 
 ## テスト
@@ -71,8 +65,6 @@ yarn build
 
 ```bash
 npm run test:unit
-# または
-yarn test:unit
 ```
 
 ### E2Eテスト
@@ -81,8 +73,6 @@ yarn test:unit
 
 ```bash
 npm run test:e2e
-# または
-yarn test:e2e
 ```
 
 #### プロダクションビルドでのE2Eテスト
