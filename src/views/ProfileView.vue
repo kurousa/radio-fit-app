@@ -31,7 +31,6 @@
           <p class="stat-label">最長連続日数</p>
           <p class="stat-value">{{ longestStreak }}日</p>
         </div>
-        <!-- 将来的に週間/月間実施日数グラフなどをここに追加 -->
       </div>
       <p class="motivational-message">{{ motivationalMessage }}</p>
     </section>
