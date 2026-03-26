@@ -6,10 +6,6 @@ import { YoutubeIframe } from '@vue-youtube/component'
 const props = defineProps<{
   videoId: string
 }>()
-
-// width と height はテンプレートに固定値として直接記述
-// const width = '800'; // setup スクリプト内では不要
-// const height = '450'; // setup スクリプト内では不要
 </script>
 
 <template>
