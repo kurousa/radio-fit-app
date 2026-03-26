@@ -5,13 +5,11 @@
     <section class="records-section">
       <h3>カレンダー</h3>
       <div class="calendar-wrapper">
-        <!-- V-Calendar コンポーネント (前月) -->
         <VCalendar
           :attributes="calendarAttributes"
           :initial-page="calendarInitialPagePrevMonth"
           class="custom-calendar"
         />
-        <!-- V-Calendar コンポーネント (当月) -->
         <VCalendar
           :attributes="calendarAttributes"
           :initial-page="calendarInitialPageCurrentMonth"
@@ -158,8 +156,8 @@ const updateCalendarAttributes = () => {
           const exerciseType = record.type === 'first' ? 'ラジオ体操第一' : 'ラジオ体操第二'
           let timeInfo = ''
           if (record.timezone) {
-            const utcTime = new Date(record.timestamp)
-            const timeString = utcTime.toLocaleTimeString('ja-JP', {
+            // // const utcTime = new Date(record.timestamp)
+            const timeString = new Date(record.timestamp).toLocaleTimeString('ja-JP', {
               hour: '2-digit',
               minute: '2-digit',
               timeZone: record.timezone,
@@ -167,7 +165,7 @@ const updateCalendarAttributes = () => {
             const timezoneAbbr = record.timezone.split('/').pop() || record.timezone
             timeInfo = ` (${timeString} ${timezoneAbbr})`
           } else if (record.timestamp) {
-            const utcTime = new Date(record.timestamp)
+            // // const utcTime = new Date(record.timestamp)
             const localTime = TimezoneService.convertUTCToLocal(record.timestamp, currentTimezone)
             const timeString = localTime.toLocaleTimeString('ja-JP', {
               hour: '2-digit',
