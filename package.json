@@ -61,5 +61,10 @@
     "vite-plugin-vue-devtools": "^7.7.2",
     "vitest": "^3.1.1",
     "vue-tsc": "^2.2.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "serialize-javascript": "^7.0.3"
+    }
   }
 }
