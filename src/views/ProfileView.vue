@@ -157,7 +157,7 @@ const updateCalendarAttributes = () => {
           let timeInfo = ''
           if (record.timezone) {
             // // const utcTime = new Date(record.timestamp)
-            const timeString = utcTime.toLocaleTimeString('ja-JP', {
+            const timeString = new Date(record.timestamp).toLocaleTimeString('ja-JP', {
               hour: '2-digit',
               minute: '2-digit',
               timeZone: record.timezone,
