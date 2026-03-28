@@ -10,7 +10,7 @@ vi.mock('localforage', () => ({
     getItem: vi.fn(async (key) => mockStore[key]),
     setItem: vi.fn(async (key, value) => {
       // Simulate I/O delay
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
       mockStore[key] = value
     }),
     iterate: vi.fn(async (callback) => {
@@ -39,7 +39,7 @@ describe('migrateAllRecordsToTimezoneAware Benchmark', () => {
           type: 'first',
           timestamp: Date.now(),
           // No timezone info, so it needs migration
-        }
+        },
       ]
     }
 

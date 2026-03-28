@@ -245,10 +245,8 @@ export function isTimezoneAwareRecord(record: ExerciseRecord): boolean {
  */
 export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
   try {
-    console.log('Starting automatic migration of existing records...')
 
     const allRecords = await getAllRecords()
-    let migratedCount = 0
 
     // 日付ごとにグループ化された記録を処理
     const recordsByDate: Record<string, ExerciseRecord[]> = {}
@@ -279,10 +277,8 @@ export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
     })
 
     // すべてのマイグレーションを並列で実行し、マイグレーションされた件数を集計
-    const results = await Promise.all(migrationPromises)
-    migratedCount = results.reduce((acc, count) => acc + count, 0)
+    await Promise.all(migrationPromises)
 
-    console.log(`Migration completed. ${migratedCount} records were migrated.`)
   } catch (error) {
     console.error('Failed to migrate existing records:', error)
     throw new Error('Record migration failed')

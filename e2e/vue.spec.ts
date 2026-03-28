@@ -20,6 +20,7 @@ test.describe('ホーム画面のUI', () => {
     await expect(page.locator('button.exercise-button.second')).toHaveText('ラジオ体操 第二')
   })
 })
+
 // ProfileViewの統計・モチベーションメッセージ・通知設定の日本語UIテスト
 test.describe('プロフィール画面の統計・モチベーション・通知設定', () => {
   test.beforeEach(async ({ page }) => {
