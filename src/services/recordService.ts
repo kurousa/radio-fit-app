@@ -11,6 +11,9 @@ localforage.config({
   description: 'ラジオ体操の実施記録',
 })
 
+// Intl.DateTimeFormatのキャッシュ
+const formatterCache = new Map<string, Intl.DateTimeFormat>()
+
 export interface ExerciseRecord {
   date: string // YYYY-MM-DD (ローカル日付)
   type: 'first' | 'second' // 体操の種類
@@ -162,28 +165,32 @@ export function migrateRecordToTimezoneAware(
     // タイムゾーン情報を取得（省略時は現在のタイムゾーンを使用）
     const targetTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    // タイムゾーンの有効性をチェック
-    try {
-      new Intl.DateTimeFormat('en-CA', { timeZone: targetTimezone })
-    } catch (timezoneError) {
-      console.error(`Invalid timezone: ${targetTimezone}`, timezoneError)
-      return record // 無効なタイムゾーンの場合は元の記録を返す
-    }
-
     // 既存のタイムスタンプからタイムゾーン情報を計算
     const utcDate = new Date(record.timestamp)
 
     // タイムゾーンオフセットを計算
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone: targetTimezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    })
+    const cacheKey = `migration:${targetTimezone}`
+    let formatter = formatterCache.get(cacheKey)
+
+    if (!formatter) {
+      // タイムゾーンの有効性チェックを兼ねてインスタンス化
+      try {
+        formatter = new Intl.DateTimeFormat('en-CA', {
+          timeZone: targetTimezone,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        })
+        formatterCache.set(cacheKey, formatter)
+      } catch (timezoneError) {
+        console.error(`Invalid timezone: ${targetTimezone}`, timezoneError)
+        return record // 無効なタイムゾーンの場合は元の記録を返す
+      }
+    }
 
     const parts = formatter.formatToParts(utcDate)
     const partsObj = parts.reduce(
