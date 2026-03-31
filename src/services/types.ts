@@ -35,6 +35,23 @@ export interface TimezoneError {
 }
 
 /**
+ * タイムゾーン処理のフォールバックアクションメッセージ
+ */
+export const TIMEZONE_FALLBACK_ACTIONS = {
+  USE_UTC: 'UTCタイムゾーンを使用して処理を続行します',
+  KEEP_ORIGINAL: '元の値をそのまま使用します',
+} as const
+
+/**
+ * タイムゾーンエラーのユーザー向けメッセージ
+ */
+export const TIMEZONE_USER_MESSAGES = {
+  DETECTION_FAILED: 'タイムゾーンの自動検出ができませんでした。UTC時刻で表示されます。',
+  INVALID_TIMEZONE: 'タイムゾーン設定に問題があります。標準時刻で表示されます。',
+  CONVERSION_ERROR: '時刻の変換処理でエラーが発生しました。表示が正しくない可能性があります。',
+} as const
+
+/**
  * 記録統計情報
  */
 export interface RecordStats {

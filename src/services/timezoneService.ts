@@ -3,7 +3,12 @@
  * ブラウザのIntl APIを使用してタイムゾーン検出・変換機能を提供
  */
 
-import type { TimezoneInfo, TimezoneError } from './types'
+import {
+  type TimezoneInfo,
+  type TimezoneError,
+  TIMEZONE_FALLBACK_ACTIONS,
+  TIMEZONE_USER_MESSAGES,
+} from './types'
 
 /**
  * タイムゾーンエラーハンドリングクラス
@@ -116,7 +121,7 @@ export class TimezoneErrorHandler {
       message: originalError
         ? `タイムゾーン検出に失敗しました: ${originalError.message}`
         : 'ブラウザからタイムゾーン情報を取得できませんでした',
-      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します',
+      fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
     }
 
     this.handleError(error)
@@ -138,7 +143,7 @@ export class TimezoneErrorHandler {
     const error: TimezoneError = {
       type: 'invalid_timezone',
       message: `無効なタイムゾーン "${timezone}" が指定されました (操作: ${operation})`,
-      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します',
+      fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
     }
 
     this.handleError(error)
@@ -151,7 +156,7 @@ export class TimezoneErrorHandler {
     const error: TimezoneError = {
       type: 'conversion_error',
       message: `${operation}中にエラーが発生しました: ${originalError.message}`,
-      fallbackAction: '元の値をそのまま使用します',
+      fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
     }
 
     this.handleError(error)
@@ -199,11 +204,11 @@ export class TimezoneErrorHandler {
   private static formatUserMessage(error: TimezoneError): string {
     switch (error.type) {
       case 'detection_failed':
-        return 'タイムゾーンの自動検出ができませんでした。UTC時刻で表示されます。'
+        return TIMEZONE_USER_MESSAGES.DETECTION_FAILED
       case 'invalid_timezone':
-        return 'タイムゾーン設定に問題があります。標準時刻で表示されます。'
+        return TIMEZONE_USER_MESSAGES.INVALID_TIMEZONE
       case 'conversion_error':
-        return '時刻の変換処理でエラーが発生しました。表示が正しくない可能性があります。'
+        return TIMEZONE_USER_MESSAGES.CONVERSION_ERROR
       default:
         return `タイムゾーン処理でエラーが発生しました: ${error.message}`
     }
