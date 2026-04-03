@@ -4,7 +4,11 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { TimezoneErrorHandler } from '../timezoneService'
-import type { TimezoneError } from '../types'
+import {
+  type TimezoneError,
+  TIMEZONE_FALLBACK_ACTIONS,
+  TIMEZONE_USER_MESSAGES,
+} from '../types'
 
 describe('TimezoneErrorHandler', () => {
   // コンソールメソッドをモック
@@ -30,7 +34,7 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'detection_failed',
         message: 'テストエラー',
-        fallbackAction: 'フォールバック処理',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       TimezoneErrorHandler.handleError(error)
@@ -39,7 +43,7 @@ describe('TimezoneErrorHandler', () => {
       expect(errorLog).toHaveLength(1)
       expect(errorLog[0].type).toBe('detection_failed')
       expect(errorLog[0].message).toBe('テストエラー')
-      expect(errorLog[0].fallbackAction).toBe('フォールバック処理')
+      expect(errorLog[0].fallbackAction).toBe(TIMEZONE_FALLBACK_ACTIONS.USE_UTC)
       expect(errorLog[0].timestamp).toBeDefined()
     })
 
@@ -47,7 +51,7 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'conversion_error',
         message: 'テスト変換エラー',
-        fallbackAction: 'フォールバック処理',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
       }
 
       TimezoneErrorHandler.handleError(error)
@@ -56,7 +60,10 @@ describe('TimezoneErrorHandler', () => {
         'Timezone Error [conversion_error]:',
         'テスト変換エラー',
       )
-      expect(mockConsoleInfo).toHaveBeenCalledWith('Fallback action:', 'フォールバック処理')
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        'Fallback action:',
+        TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
+      )
     })
 
     it('登録されたコールバック関数を呼び出す', () => {
@@ -66,15 +73,12 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'invalid_timezone',
         message: 'テスト無効タイムゾーン',
-        fallbackAction: 'フォールバック処理',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       TimezoneErrorHandler.handleError(error)
 
-      expect(mockCallback).toHaveBeenCalledWith(
-        'タイムゾーン設定に問題があります。標準時刻で表示されます。',
-        'warning',
-      )
+      expect(mockCallback).toHaveBeenCalledWith(TIMEZONE_USER_MESSAGES.INVALID_TIMEZONE, 'warning')
     })
   })
 
@@ -165,13 +169,13 @@ describe('TimezoneErrorHandler', () => {
       const error1: TimezoneError = {
         type: 'detection_failed',
         message: 'エラー1',
-        fallbackAction: 'フォールバック1',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       const error2: TimezoneError = {
         type: 'conversion_error',
         message: 'エラー2',
-        fallbackAction: 'フォールバック2',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
       }
 
       TimezoneErrorHandler.handleError(error1)
@@ -189,7 +193,7 @@ describe('TimezoneErrorHandler', () => {
         const error: TimezoneError = {
           type: 'detection_failed',
           message: `エラー${i}`,
-          fallbackAction: 'フォールバック',
+          fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
         }
         TimezoneErrorHandler.handleError(error)
       }
@@ -204,19 +208,19 @@ describe('TimezoneErrorHandler', () => {
       const error1: TimezoneError = {
         type: 'detection_failed',
         message: 'エラー1',
-        fallbackAction: 'フォールバック1',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       const error2: TimezoneError = {
         type: 'conversion_error',
         message: 'エラー2',
-        fallbackAction: 'フォールバック2',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
       }
 
       const error3: TimezoneError = {
         type: 'detection_failed',
         message: 'エラー3',
-        fallbackAction: 'フォールバック3',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       TimezoneErrorHandler.handleError(error1)
@@ -233,7 +237,7 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'detection_failed',
         message: 'テストエラー',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       TimezoneErrorHandler.handleError(error)
@@ -290,15 +294,12 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'detection_failed',
         message: 'テストメッセージ',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       TimezoneErrorHandler.handleError(error)
 
-      expect(mockCallback).toHaveBeenCalledWith(
-        'タイムゾーンの自動検出ができませんでした。UTC時刻で表示されます。',
-        'warning',
-      )
+      expect(mockCallback).toHaveBeenCalledWith(TIMEZONE_USER_MESSAGES.DETECTION_FAILED, 'warning')
     })
 
     it('invalid_timezone エラーのユーザーメッセージを正しくフォーマットする', () => {
@@ -308,15 +309,12 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'invalid_timezone',
         message: 'テストメッセージ',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       }
 
       TimezoneErrorHandler.handleError(error)
 
-      expect(mockCallback).toHaveBeenCalledWith(
-        'タイムゾーン設定に問題があります。標準時刻で表示されます。',
-        'warning',
-      )
+      expect(mockCallback).toHaveBeenCalledWith(TIMEZONE_USER_MESSAGES.INVALID_TIMEZONE, 'warning')
     })
 
     it('conversion_error エラーのユーザーメッセージを正しくフォーマットする', () => {
@@ -326,15 +324,12 @@ describe('TimezoneErrorHandler', () => {
       const error: TimezoneError = {
         type: 'conversion_error',
         message: 'テストメッセージ',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
       }
 
       TimezoneErrorHandler.handleError(error)
 
-      expect(mockCallback).toHaveBeenCalledWith(
-        '時刻の変換処理でエラーが発生しました。表示が正しくない可能性があります。',
-        'error',
-      )
+      expect(mockCallback).toHaveBeenCalledWith(TIMEZONE_USER_MESSAGES.CONVERSION_ERROR, 'error')
     })
   })
 
@@ -347,7 +342,7 @@ describe('TimezoneErrorHandler', () => {
       TimezoneErrorHandler.handleError({
         type: 'detection_failed',
         message: 'テスト',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       })
 
       expect(mockCallback).toHaveBeenLastCalledWith(expect.any(String), 'warning')
@@ -356,7 +351,7 @@ describe('TimezoneErrorHandler', () => {
       TimezoneErrorHandler.handleError({
         type: 'invalid_timezone',
         message: 'テスト',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       })
 
       expect(mockCallback).toHaveBeenLastCalledWith(expect.any(String), 'warning')
@@ -365,7 +360,7 @@ describe('TimezoneErrorHandler', () => {
       TimezoneErrorHandler.handleError({
         type: 'conversion_error',
         message: 'テスト',
-        fallbackAction: 'フォールバック',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
       })
 
       expect(mockCallback).toHaveBeenLastCalledWith(expect.any(String), 'error')

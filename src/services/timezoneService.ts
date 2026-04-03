@@ -3,7 +3,15 @@
  * ブラウザのIntl APIを使用してタイムゾーン検出・変換機能を提供
  */
 
-import type { TimezoneInfo, TimezoneError } from './types'
+import {
+  type TimezoneInfo,
+  type TimezoneError,
+  TIMEZONE_FALLBACK_ACTIONS,
+  TIMEZONE_USER_MESSAGES,
+} from './types'
+
+// Intl.DateTimeFormatのキャッシュ
+const formatterCache = new Map<string, Intl.DateTimeFormat>()
 
 /**
  * タイムゾーンエラーハンドリングクラス
@@ -116,7 +124,7 @@ export class TimezoneErrorHandler {
       message: originalError
         ? `タイムゾーン検出に失敗しました: ${originalError.message}`
         : 'ブラウザからタイムゾーン情報を取得できませんでした',
-      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します',
+      fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
     }
 
     this.handleError(error)
@@ -138,7 +146,7 @@ export class TimezoneErrorHandler {
     const error: TimezoneError = {
       type: 'invalid_timezone',
       message: `無効なタイムゾーン "${timezone}" が指定されました (操作: ${operation})`,
-      fallbackAction: 'UTCタイムゾーンを使用して処理を続行します',
+      fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
     }
 
     this.handleError(error)
@@ -151,7 +159,7 @@ export class TimezoneErrorHandler {
     const error: TimezoneError = {
       type: 'conversion_error',
       message: `${operation}中にエラーが発生しました: ${originalError.message}`,
-      fallbackAction: '元の値をそのまま使用します',
+      fallbackAction: TIMEZONE_FALLBACK_ACTIONS.KEEP_ORIGINAL,
     }
 
     this.handleError(error)
@@ -199,11 +207,11 @@ export class TimezoneErrorHandler {
   private static formatUserMessage(error: TimezoneError): string {
     switch (error.type) {
       case 'detection_failed':
-        return 'タイムゾーンの自動検出ができませんでした。UTC時刻で表示されます。'
+        return TIMEZONE_USER_MESSAGES.DETECTION_FAILED
       case 'invalid_timezone':
-        return 'タイムゾーン設定に問題があります。標準時刻で表示されます。'
+        return TIMEZONE_USER_MESSAGES.INVALID_TIMEZONE
       case 'conversion_error':
-        return '時刻の変換処理でエラーが発生しました。表示が正しくない可能性があります。'
+        return TIMEZONE_USER_MESSAGES.CONVERSION_ERROR
       default:
         return `タイムゾーン処理でエラーが発生しました: ${error.message}`
     }
@@ -293,16 +301,22 @@ export class TimezoneService {
       }
 
       // Intl.DateTimeFormatを使用してタイムゾーン変換
-      const formatter = new Intl.DateTimeFormat('en-CA', {
-        timeZone: timezone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      })
+      const cacheKey = `convertUTCToLocal:${timezone}`
+      let formatter = formatterCache.get(cacheKey)
+
+      if (!formatter) {
+        formatter = new Intl.DateTimeFormat('en-CA', {
+          timeZone: timezone,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        })
+        formatterCache.set(cacheKey, formatter)
+      }
 
       const parts = formatter.formatToParts(utcDate)
       const partsObj = parts.reduce(
@@ -358,12 +372,18 @@ export class TimezoneService {
         return date.toISOString().split('T')[0] // フォールバック: ISO日付文字列
       }
 
-      const formatter = new Intl.DateTimeFormat('en-CA', {
-        timeZone: timezone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
+      const cacheKey = `formatLocalDate:${timezone}`
+      let formatter = formatterCache.get(cacheKey)
+
+      if (!formatter) {
+        formatter = new Intl.DateTimeFormat('en-CA', {
+          timeZone: timezone,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        })
+        formatterCache.set(cacheKey, formatter)
+      }
 
       return formatter.format(date)
     } catch (error) {
@@ -387,8 +407,13 @@ export class TimezoneService {
    * タイムゾーンが有効かチェック
    */
   private static isValidTimezone(timezone: string): boolean {
+    const cacheKey = `isValid:${timezone}`
+    if (formatterCache.has(cacheKey)) {
+      return true
+    }
     try {
-      Intl.DateTimeFormat(undefined, { timeZone: timezone })
+      const formatter = new Intl.DateTimeFormat(undefined, { timeZone: timezone })
+      formatterCache.set(cacheKey, formatter)
       return true
     } catch {
       return false
@@ -401,10 +426,16 @@ export class TimezoneService {
   private static getTimezoneOffset(date: Date, timezone: string): number {
     try {
       // 標準的で確実な方法：Intl.DateTimeFormatを使用してオフセットを直接取得
-      const formatter = new Intl.DateTimeFormat('en', {
-        timeZone: timezone,
-        timeZoneName: 'longOffset',
-      })
+      const cacheKey = `offset:${timezone}`
+      let formatter = formatterCache.get(cacheKey)
+
+      if (!formatter) {
+        formatter = new Intl.DateTimeFormat('en', {
+          timeZone: timezone,
+          timeZoneName: 'longOffset',
+        })
+        formatterCache.set(cacheKey, formatter)
+      }
 
       const parts = formatter.formatToParts(date)
       const offsetPart = parts.find((part) => part.type === 'timeZoneName')
