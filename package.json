@@ -62,9 +62,6 @@
     "vite-plugin-vue-devtools": "^7.7.2",
     "vitest": "^3.1.1",
     "vue-tsc": "^2.2.8",
-<<<<<<< jules-10317752814242070665-431fb289
-    "workbox-precaching": "^7.4.0"
-=======
     "workbox-core": "^7.4.0",
     "workbox-expiration": "^7.4.0",
     "workbox-precaching": "^7.4.0",
@@ -73,6 +70,5 @@
   },
   "overrides": {
     "serialize-javascript": "^7.0.3"
->>>>>>> master
   }
 }
