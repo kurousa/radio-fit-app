@@ -24,23 +24,28 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 
 ## 開発環境の構築
 
-1. Node.jsとnpmをインストールします。
-2. リポジトリをクローンします。
+### 前提 
+
+Node.jsとpnpm、@antfu/niをインストール済みであること。
+
+### 手順
+
+1. リポジトリをクローンします。
 
    ```bash
    git clone <リポジトリのURL>
    ```
 
-3. プロジェクトのディレクトリに移動します。
+2. プロジェクトのディレクトリに移動します。
 
    ```bash
    cd radio-fit-app
    ```
 
-4. 依存関係をインストールします。
+3. 依存関係をインストールします。
 
    ```bash
-   npm install
+   ni
    ```
 
 ## 実行方法
@@ -48,7 +53,7 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 1. 開発サーバーを起動します。
 
    ```bash
-   npm run dev
+   nr dev
    ```
 
 2. ブラウザで `http://localhost:5173` にアクセスします。
@@ -56,7 +61,7 @@ RadioFitは、ラジオ体操を支援するアプリケーションです。
 ## ビルド方法
 
 ```bash
-npm run build
+nr build
 ```
 
 ## テスト
@@ -64,7 +69,7 @@ npm run build
 ### 単体テスト
 
 ```bash
-npm run test:unit
+nr test:unit
 ```
 
 ### E2Eテスト
@@ -72,17 +77,17 @@ npm run test:unit
 #### 開発環境でのE2Eテスト
 
 ```bash
-npm run test:e2e
+nr test:e2e
 ```
 
 #### プロダクションビルドでのE2Eテスト
 
 ```bash
 # 1. プロダクションサーバーを起動
-npm run start:prod
+nr start:prod
 
 # 2. 別のターミナルでE2Eテストを実行
-npm run test:e2e-prod
+nr test:e2e-prod
 ```
 
 詳細な手順については [E2E-TESTING.md](./E2E-TESTING.md) を参照してください。
