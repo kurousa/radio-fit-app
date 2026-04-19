@@ -35,8 +35,8 @@ export async function getAllRecords(): Promise<ExerciseRecord[]> {
         allRecords.push(...value)
       }
     })
-    // 日付順にソート (必要であれば)
-    allRecords.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    // タイムスタンプ順にソート
+    allRecords.sort((a, b) => a.timestamp - b.timestamp)
     return allRecords
   } catch (error) {
     console.error('記録の取得に失敗しました:', error)

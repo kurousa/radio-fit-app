@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import localforage from 'localforage'
 import {
+  getAllRecords,
   migrateRecordToTimezoneAware,
   migrateRecordsToTimezoneAware,
   migrateAllRecordsToTimezoneAware,
@@ -153,6 +154,62 @@ describe('Timezone-Aware Record Functions', () => {
     mockLocalforageIterate({})
     // Default: setItem succeeds
     vi.mocked(localforage.setItem).mockResolvedValue(undefined as never)
+  })
+
+  describe('getAllRecords', () => {
+    it('should return empty array when no records exist', async () => {
+      mockLocalforageIterate({})
+      const records = await getAllRecords()
+      expect(records).toEqual([])
+    })
+
+    it('should return all records across different dates', async () => {
+      const recordsByDate: Record<string, ExerciseRecord[]> = {
+        '2025-01-15': [
+          { date: '2025-01-15', type: 'first', timestamp: 1736942400000 },
+        ],
+        '2025-01-16': [
+          { date: '2025-01-16', type: 'second', timestamp: 1737028800000 },
+        ],
+      }
+      mockLocalforageIterate(recordsByDate)
+
+      const records = await getAllRecords()
+      expect(records).toHaveLength(2)
+      expect(records).toContainEqual(recordsByDate['2025-01-15'][0])
+      expect(records).toContainEqual(recordsByDate['2025-01-16'][0])
+    })
+
+    it('should return records sorted by timestamp (including multiple records on same day)', async () => {
+      const recordsByDate: Record<string, ExerciseRecord[]> = {
+        '2025-01-15': [
+          { date: '2025-01-15', type: 'second', timestamp: 1736953200000 }, // 13:00 UTC
+          { date: '2025-01-15', type: 'first', timestamp: 1736942400000 },  // 10:00 UTC
+        ],
+        '2025-01-14': [
+          { date: '2025-01-14', type: 'first', timestamp: 1736856000000 },
+        ],
+      }
+      mockLocalforageIterate(recordsByDate)
+
+      const records = await getAllRecords()
+      expect(records).toHaveLength(3)
+      expect(records[0].date).toBe('2025-01-14')
+      expect(records[1].date).toBe('2025-01-15')
+      expect(records[1].type).toBe('first')
+      expect(records[2].date).toBe('2025-01-15')
+      expect(records[2].type).toBe('second')
+    })
+
+    it('should handle localforage errors gracefully', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.mocked(localforage.iterate).mockRejectedValue(new Error('Iterate error'))
+
+      const records = await getAllRecords()
+      expect(records).toEqual([])
+      expect(consoleSpy).toHaveBeenCalledWith('記録の取得に失敗しました:', expect.any(Error))
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('recordExerciseWithTimezone', () => {
