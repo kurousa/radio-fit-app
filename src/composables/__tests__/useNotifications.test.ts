@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotifications } from '../useNotifications'
 import * as notificationService from '@/services/notificationService'
-import { ref, nextTick } from 'vue'
+import { nextTick } from 'vue'
 
 // Mock notificationService
 vi.mock('@/services/notificationService', () => ({
