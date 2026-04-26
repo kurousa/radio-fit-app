@@ -31,7 +31,7 @@ test.describe('Timezone Recording E2E Tests', () => {
 
     test('should navigate to profile page', async ({ page }) => {
       // プロフィール画面に移動
-      await page.locator('a[href="/profile"]').click()
+      await page.locator('.main-nav a[href="/profile"]').click()
       await page.waitForLoadState('domcontentloaded')
 
       // プロフィール画面の要素が表示されることを確認
@@ -121,7 +121,7 @@ test.describe('Timezone Recording E2E Tests', () => {
       // プロフィール画面の読み込み時間も測定
       const profileStartTime = Date.now()
 
-      await page.locator('a[href="/profile"]').click()
+      await page.locator('.main-nav a[href="/profile"]').click()
       await page.waitForLoadState('domcontentloaded')
 
       const profileLoadTime = Date.now() - profileStartTime
