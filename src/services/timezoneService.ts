@@ -29,15 +29,15 @@ export class TimezoneErrorHandler {
    */
   static handleError(error: TimezoneError): void {
     // エラーログに記録
-    this.logError(error)
+    TimezoneErrorHandler.logError(error)
 
     // コンソールにエラー情報を出力
     console.error(`Timezone Error [${error.type}]:`, error.message)
     console.info('Fallback action:', error.fallbackAction)
 
     // エラータイプに応じた適切な通知レベルを決定
-    const notificationType = this.getNotificationType(error.type)
-    const userMessage = this.formatUserMessage(error)
+    const notificationType: 'error' | 'warning' | 'info' = TimezoneErrorHandler.getNotificationType(error.type)
+    const userMessage = TimezoneErrorHandler.formatUserMessage(error)
 
     // ユーザーへの通知を表示
     this.showUserNotification(userMessage, notificationType)
