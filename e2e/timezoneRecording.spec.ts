@@ -22,7 +22,7 @@ test.describe('Timezone Recording E2E Tests', () => {
 
     test('should navigate to exercises page', async ({ page }) => {
       // エクササイズページに移動
-      await page.click('.exercise-button.first')
+      await page.locator('.exercise-button.first').click()
 
       // エクササイズページの要素が表示されることを確認
       await expect(page.locator('.complete-button')).toBeVisible()
@@ -31,7 +31,7 @@ test.describe('Timezone Recording E2E Tests', () => {
 
     test('should navigate to profile page', async ({ page }) => {
       // プロフィール画面に移動
-      await page.click('a[href="/profile"]')
+      await page.locator('a[href="/profile"]').click()
       await page.waitForLoadState('domcontentloaded')
 
       // プロフィール画面の要素が表示されることを確認
@@ -77,7 +77,7 @@ test.describe('Timezone Recording E2E Tests', () => {
       await page.goto('/exercises')
 
       // 完了ボタンをクリック
-      await page.click('.complete-button')
+      await page.locator('.complete-button').click()
 
       // 完了ポップアップが表示されることを確認
       await expect(page.locator('.completion-popup')).toBeVisible({ timeout: 10000 })
@@ -121,7 +121,7 @@ test.describe('Timezone Recording E2E Tests', () => {
       // プロフィール画面の読み込み時間も測定
       const profileStartTime = Date.now()
 
-      await page.click('a[href="/profile"]')
+      await page.locator('a[href="/profile"]').click()
       await page.waitForLoadState('domcontentloaded')
 
       const profileLoadTime = Date.now() - profileStartTime
