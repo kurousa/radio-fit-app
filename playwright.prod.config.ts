@@ -76,6 +76,6 @@ export default defineConfig({
 
   /*
    * No webServer configuration here - we expect the server to be running already
-   * The server should be started manually with `npm run preview` before running tests
+   * The server should be started manually with `pnpm run preview` before running tests
    */
 })
