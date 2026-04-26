@@ -67,7 +67,7 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('登録されたコールバック関数を呼び出す', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(() => {})
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       const error: TimezoneError = {
@@ -84,7 +84,7 @@ describe('TimezoneErrorHandler', () => {
 
   describe('showUserNotification', () => {
     it('登録されたコールバック関数を呼び出す', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       TimezoneErrorHandler.showUserNotification('テストメッセージ', 'info')
@@ -93,7 +93,7 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('デフォルトでerrorタイプを使用する', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       TimezoneErrorHandler.showUserNotification('テストメッセージ')
@@ -102,7 +102,7 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('コールバックエラーを適切に処理する', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(
         () => {
           throw new Error('コールバックエラー')
         },
@@ -129,8 +129,8 @@ describe('TimezoneErrorHandler', () => {
 
   describe('コールバック管理', () => {
     it('コールバック関数を正しく登録・削除する', () => {
-      const mockCallback1 = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
-      const mockCallback2 = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback1: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
+      const mockCallback2: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
 
       TimezoneErrorHandler.registerNotificationCallback(mockCallback1)
       TimezoneErrorHandler.registerNotificationCallback(mockCallback2)
@@ -151,8 +151,8 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('すべてのコールバックをクリアする', () => {
-      const mockCallback1 = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
-      const mockCallback2 = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback1: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
+      const mockCallback2: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
 
       TimezoneErrorHandler.registerNotificationCallback(mockCallback1)
       TimezoneErrorHandler.registerNotificationCallback(mockCallback2)
@@ -290,7 +290,7 @@ describe('TimezoneErrorHandler', () => {
 
   describe('メッセージフォーマット', () => {
     it('detection_failed エラーのユーザーメッセージを正しくフォーマットする', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       const error: TimezoneError = {
@@ -305,7 +305,7 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('invalid_timezone エラーのユーザーメッセージを正しくフォーマットする', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       const error: TimezoneError = {
@@ -320,7 +320,7 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('conversion_error エラーのユーザーメッセージを正しくフォーマットする', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn()
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       const error: TimezoneError = {
@@ -337,16 +337,13 @@ describe('TimezoneErrorHandler', () => {
 
   describe('通知レベル判定', () => {
     it('エラータイプに応じて適切な通知レベルを設定する', () => {
-      const mockCallback = vi.fn<(message: string, type: 'error' | 'warning' | 'info') => void>(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(() => {})
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
-
-      // detection_failed -> warning
       TimezoneErrorHandler.handleError({
         type: 'detection_failed',
         message: 'テスト',
         fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
       })
-
       expect(mockCallback).toHaveBeenLastCalledWith(
         TIMEZONE_USER_MESSAGES.DETECTION_FAILED,
         'warning',
