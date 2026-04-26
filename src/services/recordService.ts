@@ -35,8 +35,8 @@ export async function getAllRecords(): Promise<ExerciseRecord[]> {
         allRecords.push(...value)
       }
     })
-    // 日付順にソート (必要であれば)
-    allRecords.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    // タイムスタンプ順にソート
+    allRecords.sort((a, b) => a.timestamp - b.timestamp)
     return allRecords
   } catch (error) {
     console.error('記録の取得に失敗しました:', error)
@@ -268,13 +268,14 @@ export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
 
     // 各日付の記録をマイグレーション
     const migrationPromises = Object.entries(recordsByDate).map(async ([date, records]) => {
-      const migratedRecords = migrateRecordsToTimezoneAware(records)
-
-      // マイグレーションが必要だった記録があるかチェック
-      const needsMigration = records.some(
-        (record, index) =>
-          !isTimezoneAwareRecord(record) && isTimezoneAwareRecord(migratedRecords[index]),
-      )
+      let needsMigration = false
+      const migratedRecords = records.map((record) => {
+        const migrated = migrateRecordToTimezoneAware(record)
+        if (migrated !== record) {
+          needsMigration = true
+        }
+        return migrated
+      })
 
       if (needsMigration) {
         await localforage.setItem(date, migratedRecords)

@@ -281,7 +281,9 @@ describe('Timezone Recording Flow Integration Tests', () => {
       // マイグレーション後の記録を確認
       const migratedRecords = mockStorage.get('2025-01-10')
       expect(migratedRecords).toHaveLength(1)
-      expect(isTimezoneAwareRecord(migratedRecords?.[0]!)).toBe(true)
+      if (migratedRecords && migratedRecords[0]) {
+        expect(isTimezoneAwareRecord(migratedRecords[0])).toBe(true)
+      }
       expect(migratedRecords?.[0]).toMatchObject({
         date: '2025-01-10',
         type: 'first',
@@ -371,7 +373,7 @@ describe('Timezone Recording Flow Integration Tests', () => {
       const invalidRecord: ExerciseRecord = {
         date: '2025-01-10',
         type: 'first',
-        timestamp: 'invalid-timestamp' as any,
+        timestamp: 'invalid-timestamp' as unknown as number,
       }
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

@@ -1,7 +1,7 @@
 export const registerServiceWorker = async (): Promise<void> => {
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js')
+      await navigator.serviceWorker.register('/sw.js')
     } catch (error) {
       console.error('Service Worker registration failed from service:', error)
     }
