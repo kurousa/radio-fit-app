@@ -186,7 +186,7 @@ export class TimezoneErrorHandler {
   /**
    * エラータイプに応じた通知レベルを決定
    */
-  public static getNotificationType(
+  private static getNotificationType(
     errorType: 'detection_failed' | 'invalid_timezone' | 'conversion_error',
   ): 'error' | 'warning' | 'info' {
     switch (errorType) {
