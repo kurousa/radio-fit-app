@@ -333,6 +333,21 @@ describe('TimezoneErrorHandler', () => {
 
       expect(mockCallback).toHaveBeenCalledWith(TIMEZONE_USER_MESSAGES.CONVERSION_ERROR, 'error')
     })
+
+    it('未知のエラータイプの場合にジェネリックメッセージを返す', () => {
+      const mockCallback = vi.fn()
+      TimezoneErrorHandler.registerNotificationCallback(mockCallback)
+
+      const error = {
+        type: 'unknown_type' as any,
+        message: '秘密の情報',
+        fallbackAction: 'なし',
+      }
+
+      TimezoneErrorHandler.handleError(error)
+
+      expect(mockCallback).toHaveBeenCalledWith(TIMEZONE_USER_MESSAGES.GENERIC_ERROR, 'error')
+    })
   })
 
   describe('通知レベル判定', () => {

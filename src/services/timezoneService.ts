@@ -213,7 +213,7 @@ export class TimezoneErrorHandler {
       case 'conversion_error':
         return TIMEZONE_USER_MESSAGES.CONVERSION_ERROR
       default:
-        return `タイムゾーン処理でエラーが発生しました: ${error.message}`
+        return TIMEZONE_USER_MESSAGES.GENERIC_ERROR
     }
   }
 }
