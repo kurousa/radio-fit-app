@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useToastNotifications } from '../useNotifications'
+import { useToastNotifications, _resetToastState } from '../useNotifications'
 
 describe('useToastNotifications', () => {
   beforeEach(() => {
@@ -7,12 +7,7 @@ describe('useToastNotifications', () => {
   })
 
   afterEach(() => {
-    const { notifications, removeToast } = useToastNotifications()
-    // Clear all notifications after each test to ensure isolation
-    // We use a copy of the array because removeToast modifies the original
-    const currentNotifications = [...notifications.value]
-    currentNotifications.forEach((n) => removeToast(n.id))
-
+    _resetToastState()
     vi.restoreAllMocks()
     vi.useRealTimers()
   })
@@ -47,14 +42,14 @@ describe('useToastNotifications', () => {
     })
   })
 
-  it('should assign unique incremental IDs', () => {
+  it('should assign unique incremental IDs starting from 1', () => {
     const { addToast, notifications } = useToastNotifications()
     addToast('Message 1')
     addToast('Message 2')
 
     expect(notifications.value).toHaveLength(2)
-    expect(notifications.value[0].id).not.toBe(notifications.value[1].id)
-    expect(notifications.value[1].id).toBe(notifications.value[0].id + 1)
+    expect(notifications.value[0].id).toBe(1)
+    expect(notifications.value[1].id).toBe(2)
   })
 
   it('should remove a toast manually', () => {
