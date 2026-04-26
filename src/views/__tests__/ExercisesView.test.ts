@@ -28,6 +28,7 @@ describe('ExercisesView', () => {
   let router: ReturnType<typeof createRouter>
 
   beforeEach(() => {
+    vi.clearAllMocks()
     router = createRouter({
       history: createWebHistory(),
       routes: [{ path: '/exercises', component: ExercisesView }],
@@ -145,7 +146,7 @@ describe('ExercisesView', () => {
     await wrapper.vm.$nextTick()
 
     expect(TimezoneErrorHandler.showUserNotification).toHaveBeenCalledWith(
-      expect.stringContaining('記録保存エラー'),
+      '記録の保存に失敗しました。もう一度お試しください。',
     )
   })
 })
