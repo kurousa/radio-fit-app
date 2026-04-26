@@ -20,8 +20,11 @@ describe('Timezone Change Integration', () => {
     // シングルトンインスタンスをリセット
     timezoneChangeDetector.stopMonitoring()
     // プライベートプロパティにアクセスするためのタイプアサーション
-    const detector = timezoneChangeDetector as any
-    if (detector.callbacks && detector.callbacks.clear) {
+    const detector = timezoneChangeDetector as unknown as {
+      callbacks?: Map<unknown, unknown>
+      currentTimezone?: string
+    }
+    if (detector.callbacks) {
       detector.callbacks.clear()
     }
     if (detector.currentTimezone !== undefined) {

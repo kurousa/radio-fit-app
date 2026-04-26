@@ -68,7 +68,9 @@ describe('TimezoneErrorHandler', () => {
 
     it('登録されたコールバック関数を呼び出す', () => {
       const mockCallback = vi.fn()
-      TimezoneErrorHandler.registerNotificationCallback(mockCallback)
+      TimezoneErrorHandler.registerNotificationCallback(
+        mockCallback as unknown as (message: string, type?: 'info' | 'warning' | 'error') => void,
+      )
 
       const error: TimezoneError = {
         type: 'invalid_timezone',

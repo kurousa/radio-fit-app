@@ -258,8 +258,8 @@ describe('DateUtils', () => {
       const firstDayOfYear = new Date('2025-01-01T01:00:00Z')
 
       // 異なるタイムゾーンでの年境界
-      const tokyoLastDay = DateUtils.isSameLocalDate(lastDayOfYear, firstDayOfYear, 'Asia/Tokyo')
-      const nyLastDay = DateUtils.isSameLocalDate(lastDayOfYear, firstDayOfYear, 'America/New_York')
+      DateUtils.isSameLocalDate(lastDayOfYear, firstDayOfYear, 'Asia/Tokyo')
+      DateUtils.isSameLocalDate(lastDayOfYear, firstDayOfYear, 'America/New_York')
 
       // 実際の時差を考慮すると、東京では2025年1月1日の10時と11時になり、同じ日になる可能性がある
       // より確実に異なる日になるよう、時間差を大きくする
