@@ -145,7 +145,7 @@ describe('ExercisesView', () => {
     await wrapper.vm.$nextTick()
 
     expect(TimezoneErrorHandler.showUserNotification).toHaveBeenCalledWith(
-      expect.stringContaining('記録保存エラー'),
+      '記録の保存に失敗しました。もう一度お試しください。',
     )
   })
 })
