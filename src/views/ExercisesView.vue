@@ -147,7 +147,7 @@ export default defineComponent({
         }, 3000) // 3秒後にエラーポップアップを非表示
 
         // TimezoneErrorHandlerを使用してエラーログを出力
-        TimezoneErrorHandler.showUserNotification('記録の保存中にエラーが発生しました。')
+        TimezoneErrorHandler.showUserNotification(errorMessage.value)
       }
     }
 

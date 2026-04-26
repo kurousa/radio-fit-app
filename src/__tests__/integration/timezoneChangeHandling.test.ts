@@ -125,7 +125,10 @@ describe('Timezone Change Handling Integration Tests', () => {
 
     // タイムゾーン変更検出器をリセット
     timezoneChangeDetector.stopMonitoring()
-    const detector = timezoneChangeDetector as any
+    const detector = timezoneChangeDetector as unknown as {
+      callbacks?: Map<unknown, unknown>
+      currentTimezone?: string
+    }
     if (detector.callbacks) {
       detector.callbacks.clear()
     }
@@ -151,7 +154,7 @@ describe('Timezone Change Handling Integration Tests', () => {
       const unsubscribe = timezoneChangeDetector.onTimezoneChange(callback)
 
       // 初期タイムゾーンを設定
-      const detector = timezoneChangeDetector as any
+      const detector = timezoneChangeDetector as unknown as { currentTimezone?: string }
       detector.currentTimezone = 'Asia/Tokyo'
       expect(timezoneChangeDetector.getCurrentTimezone()).toBe('Asia/Tokyo')
 
@@ -177,7 +180,7 @@ describe('Timezone Change Handling Integration Tests', () => {
       timezoneChangeDetector.onTimezoneChange(callback)
 
       // 初期タイムゾーンを設定
-      const detector = timezoneChangeDetector as any
+      const detector = timezoneChangeDetector as unknown as { currentTimezone?: string }
       detector.currentTimezone = 'Asia/Tokyo'
 
       // 1回目の変更

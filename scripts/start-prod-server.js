@@ -19,7 +19,7 @@ console.log('🏗️  Building application for production...')
 const buildProcess = spawn('npm', ['run', 'build'], {
   cwd: projectRoot,
   stdio: 'inherit',
-  shell: true
+  shell: true,
 })
 
 buildProcess.on('close', (code) => {
@@ -35,11 +35,11 @@ buildProcess.on('close', (code) => {
   const previewProcess = spawn('npm', ['run', 'preview'], {
     cwd: projectRoot,
     stdio: 'inherit',
-    shell: true
+    shell: true,
   })
 
   console.log('📝 Server started at http://localhost:4173')
-  console.log('🧪 You can now run E2E tests with: npm run test:e2e-prod')
+  console.log('🧪 You can now run E2E tests with: pnpm test:e2e-prod')
   console.log('⏹️  Press Ctrl+C to stop the server')
 
   // Handle process termination

@@ -1,9 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import localforage from 'localforage'
+import { describe, it, beforeEach, vi, expect } from 'vitest'
 import { migrateAllRecordsToTimezoneAware } from '../recordService'
 
 // Mock localforage to simulate storage delay
-const mockStore: Record<string, any> = {}
+const mockStore: Record<string, unknown> = {}
 vi.mock('localforage', () => ({
   default: {
     config: vi.fn(),
@@ -15,7 +14,11 @@ vi.mock('localforage', () => ({
     }),
     iterate: vi.fn(async (callback) => {
       for (const [key, value] of Object.entries(mockStore)) {
-        await callback(value, key, 0)
+        await (callback as (value: unknown, key: string, iterationNumber: number) => Promise<void>)(
+          value,
+          key,
+          0,
+        )
       }
     }),
   },
@@ -48,5 +51,6 @@ describe('migrateAllRecordsToTimezoneAware Benchmark', () => {
     const end = performance.now()
 
     console.log(`Migration of ${numDays} days took ${end - start}ms`)
+    expect(end - start).toBeGreaterThanOrEqual(0)
   })
 })

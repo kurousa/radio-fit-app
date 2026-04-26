@@ -24,8 +24,12 @@ export default defineConfigWithVueTs(
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
+    rules: {
+      ...pluginVitest.configs.recommended.rules,
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
-  
+
   {
     ...pluginPlaywright.configs['flat/recommended'],
     files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],

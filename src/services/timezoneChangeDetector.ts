@@ -73,7 +73,8 @@ export class TimezoneChangeDetector {
    */
   getCurrentTimezone(): string {
     try {
-      return TimezoneService.getCurrentTimezoneInfo().timezone
+      const info = TimezoneService.getCurrentTimezoneInfo()
+      return info?.timezone || 'UTC'
     } catch (error) {
       console.error('Failed to get current timezone:', error)
       return 'UTC'

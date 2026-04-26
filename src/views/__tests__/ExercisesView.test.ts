@@ -28,6 +28,7 @@ describe('ExercisesView', () => {
   let router: ReturnType<typeof createRouter>
 
   beforeEach(() => {
+    vi.clearAllMocks()
     router = createRouter({
       history: createWebHistory(),
       routes: [{ path: '/exercises', component: ExercisesView }],
