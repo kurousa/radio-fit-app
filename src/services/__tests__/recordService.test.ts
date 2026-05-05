@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import localforage from 'localforage'
+import { TimezoneService } from '../timezoneService'
 import {
   getAllRecords,
   migrateRecordToTimezoneAware,
@@ -19,6 +20,26 @@ vi.mock('localforage', () => ({
     setItem: vi.fn(),
     iterate: vi.fn(),
     config: vi.fn(),
+  },
+}))
+
+// Mock TimezoneService to ensure stable tests in CI
+vi.mock('../timezoneService', () => ({
+  TimezoneService: {
+    getCurrentTimezoneInfo: vi.fn(() => ({
+      timezone: 'Asia/Tokyo',
+      offset: -540,
+      localTime: new Date(),
+      utcTime: new Date(),
+    })),
+    getTimezoneInfo: vi.fn((tz) => ({
+      timezone: tz,
+      offset: tz === 'America/New_York' ? -300 : -540,
+      localTime: new Date(),
+      utcTime: new Date(),
+    })),
+    formatLocalDate: vi.fn((date) => date.toISOString().split('T')[0]),
+    convertUTCToLocal: vi.fn((ts) => new Date(ts)),
   },
 }))
 
@@ -155,24 +176,24 @@ describe('Timezone-Aware Record Functions', () => {
     mockLocalforageIterate({})
     // Default: setItem succeeds
     vi.mocked(localforage.setItem).mockResolvedValue(undefined as never)
+    // Default: getItem returns null
+    vi.mocked(localforage.getItem).mockResolvedValue(null)
   })
 
   describe('getRecordById', () => {
     it('should return undefined when record is not found', async () => {
       vi.mocked(localforage.getItem).mockResolvedValue(null)
-      const record = await getRecordById('2025-01-15')
-      expect(record).toBeUndefined()
+      const records = await getRecordById('2025-01-15')
+      expect(records).toBeUndefined()
     })
 
-    it('should return record when found', async () => {
-      const mockRecord: ExerciseRecord = {
-        date: '2025-01-15',
-        type: 'first',
-        timestamp: 1736942400000,
-      }
-      vi.mocked(localforage.getItem).mockResolvedValue(mockRecord)
-      const record = await getRecordById('2025-01-15')
-      expect(record).toEqual(mockRecord)
+    it('should return record array when found', async () => {
+      const mockRecords: ExerciseRecord[] = [
+        { date: '2025-01-15', type: 'first', timestamp: 1736942400000 },
+      ]
+      vi.mocked(localforage.getItem).mockResolvedValue(mockRecords)
+      const records = await getRecordById('2025-01-15')
+      expect(records).toEqual(mockRecords)
     })
 
     it('should handle localforage errors gracefully', async () => {
