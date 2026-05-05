@@ -134,7 +134,7 @@ export async function getRecordsWithTimezoneConversion(
     })
 
     // 日付順にソート
-    convertedRecords.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    convertedRecords.sort((a, b) => a.timestamp - b.timestamp)
 
     return convertedRecords
   } catch (error) {
