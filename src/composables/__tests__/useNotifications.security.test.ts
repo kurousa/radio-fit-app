@@ -20,12 +20,7 @@ describe('useNotifications - Security and Robustness', () => {
     localStorage.setItem(NOTIFICATION_SETTINGS_KEY, 'not-a-json')
 
     // We want to ensure it doesn't throw and uses defaults
-    let isEnabled, notificationTime;
-    expect(() => {
-      const result = useNotifications()
-      isEnabled = result.isEnabled
-      notificationTime = result.notificationTime
-    }).not.toThrow()
+    const { isEnabled, notificationTime } = useNotifications()
 
     expect(isEnabled.value).toBe(false)
     expect(notificationTime.value).toBe('08:00')
