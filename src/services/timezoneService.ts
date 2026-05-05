@@ -457,7 +457,7 @@ export class TimezoneService {
       const localTime = new Date(localTimeString).getTime()
       return Math.round((localTime - utcTime) / (1000 * 60))
     } catch (error) {
-      console.error('Failed to get timezone offset:', error)
+      TimezoneErrorHandler.handleConversionError('タイムゾーンオフセット取得', error as Error)
       return 0
     }
   }
