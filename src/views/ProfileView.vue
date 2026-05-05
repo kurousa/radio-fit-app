@@ -105,7 +105,7 @@ const longestStreak = computed(() => {
     let maxStreak = 0
     let currentStreak = 0
     const sortedRecords = [...allRecords.value].sort((a, b) => {
-      return new Date(a.date).getTime() - new Date(b.date).getTime()
+      return a.timestamp - b.timestamp
     })
     const uniqueDates = [...new Set(sortedRecords.map((record) => record.date))]
     for (let i = 0; i < uniqueDates.length; i++) {
