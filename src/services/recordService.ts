@@ -23,6 +23,21 @@ export interface ExerciseRecord {
 }
 
 /**
+ * 指定したID（日付）の全記録を取得する
+ * @param id - 記録のID（日付 YYYY-MM-DD）
+ * @returns 記録の配列、または見つからない/失敗時はundefined
+ */
+export async function getRecordById(id: string): Promise<ExerciseRecord[] | undefined> {
+  try {
+    const records = await localforage.getItem(id)
+    return (records as ExerciseRecord[]) || undefined
+  } catch (error) {
+    console.error(`Failed to get record with id ${id}:`, error)
+    return undefined
+  }
+}
+
+/**
  * 全ての実施記録を取得する
  * @returns 全ての記録の配列
  */
