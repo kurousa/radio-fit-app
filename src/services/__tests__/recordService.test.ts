@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import localforage from 'localforage'
-import { TimezoneService } from '../timezoneService'
 import {
   getAllRecords,
   migrateRecordToTimezoneAware,
