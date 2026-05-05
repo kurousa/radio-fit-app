@@ -6,6 +6,7 @@ import {
   migrateRecordsToTimezoneAware,
   migrateAllRecordsToTimezoneAware,
   isTimezoneAwareRecord,
+  getRecordById,
   recordExerciseWithTimezone,
   getRecordsWithTimezoneConversion,
   type ExerciseRecord,
@@ -154,6 +155,36 @@ describe('Timezone-Aware Record Functions', () => {
     mockLocalforageIterate({})
     // Default: setItem succeeds
     vi.mocked(localforage.setItem).mockResolvedValue(undefined as never)
+  })
+
+  describe('getRecordById', () => {
+    it('should return undefined when record is not found', async () => {
+      vi.mocked(localforage.getItem).mockResolvedValue(null)
+      const record = await getRecordById('2025-01-15')
+      expect(record).toBeUndefined()
+    })
+
+    it('should return record when found', async () => {
+      const mockRecord: ExerciseRecord = {
+        date: '2025-01-15',
+        type: 'first',
+        timestamp: 1736942400000,
+      }
+      vi.mocked(localforage.getItem).mockResolvedValue(mockRecord)
+      const record = await getRecordById('2025-01-15')
+      expect(record).toEqual(mockRecord)
+    })
+
+    it('should handle localforage errors gracefully', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const error = new Error('Get item error')
+      vi.mocked(localforage.getItem).mockRejectedValue(error)
+
+      const record = await getRecordById('2025-01-15')
+      expect(record).toBeUndefined()
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to get record with id 2025-01-15:', error)
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('getAllRecords', () => {

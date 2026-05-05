@@ -23,6 +23,21 @@ export interface ExerciseRecord {
 }
 
 /**
+ * 指定したIDの記録を取得する
+ * @param id - 記録のID
+ * @returns 記録、または見つからない/失敗時はundefined
+ */
+export async function getRecordById(id: string): Promise<ExerciseRecord | undefined> {
+  try {
+    const record = await localforage.getItem(id)
+    return (record as ExerciseRecord) || undefined
+  } catch (error) {
+    console.error(`Failed to get record with id ${id}:`, error)
+    return undefined
+  }
+}
+
+/**
  * 全ての実施記録を取得する
  * @returns 全ての記録の配列
  */
