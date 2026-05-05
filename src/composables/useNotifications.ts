@@ -68,17 +68,17 @@ export function useNotifications() {
   const { addToast } = useToastNotifications()
 
   const loadSettings = () => {
+    const settingsJson = localStorage.getItem(NOTIFICATION_SETTINGS_KEY)
+    if (!settingsJson) return
+
     try {
-      const settingsJson = localStorage.getItem(NOTIFICATION_SETTINGS_KEY)
-      if (settingsJson) {
-        const settings = JSON.parse(settingsJson)
-        if (settings && typeof settings === 'object') {
-          if (typeof settings.isEnabled === 'boolean') {
-            isEnabled.value = settings.isEnabled
-          }
-          if (typeof settings.time === 'string') {
-            notificationTime.value = settings.time
-          }
+      const settings = JSON.parse(settingsJson)
+      if (settings && typeof settings === 'object') {
+        if (typeof settings.isEnabled === 'boolean') {
+          isEnabled.value = settings.isEnabled
+        }
+        if (typeof settings.time === 'string' && /^([01]\d|2[0-3]):([0-5]\d)$/.test(settings.time)) {
+          notificationTime.value = settings.time
         }
       }
     } catch (error) {
