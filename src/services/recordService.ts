@@ -208,13 +208,11 @@ export function migrateRecordToTimezoneAware(
     }
 
     const parts = formatter.formatToParts(utcDate)
-    const partsObj = parts.reduce(
-      (acc, part) => {
-        acc[part.type] = part.value
-        return acc
-      },
-      {} as Record<string, string>,
-    )
+    const partsObj: Record<string, string> = {}
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i]
+      partsObj[part.type] = part.value
+    }
 
     const localDate = new Date(
       parseInt(partsObj.year),
@@ -249,7 +247,8 @@ export function migrateRecordsToTimezoneAware(
   records: ExerciseRecord[],
   timezone?: string,
 ): ExerciseRecord[] {
-  return records.map((record) => migrateRecordToTimezoneAware(record, timezone))
+  const targetTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+  return records.map((record) => migrateRecordToTimezoneAware(record, targetTimezone))
 }
 
 /**
@@ -267,41 +266,30 @@ export function isTimezoneAwareRecord(record: ExerciseRecord): boolean {
  */
 export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
   try {
+    const targetTimezone = TimezoneService.getCurrentTimezoneInfo().timezone
+    const migrationPromises: Promise<unknown>[] = []
 
-    const allRecords = await getAllRecords()
+    await localforage.iterate((records, date) => {
+      if (Array.isArray(records)) {
+        let needsMigration = false
+        const migratedRecords = records.map((record) => {
+          const migrated = migrateRecordToTimezoneAware(record, targetTimezone)
+          if (migrated !== record) {
+            needsMigration = true
+          }
+          return migrated
+        })
 
-    // 日付ごとにグループ化された記録を処理
-    const recordsByDate: Record<string, ExerciseRecord[]> = {}
-
-    // 既存の記録を日付でグループ化
-    for (const record of allRecords) {
-      if (!recordsByDate[record.date]) {
-        recordsByDate[record.date] = []
-      }
-      recordsByDate[record.date].push(record)
-    }
-
-    // 各日付の記録をマイグレーション
-    const migrationPromises = Object.entries(recordsByDate).map(async ([date, records]) => {
-      let needsMigration = false
-      const migratedRecords = records.map((record) => {
-        const migrated = migrateRecordToTimezoneAware(record)
-        if (migrated !== record) {
-          needsMigration = true
+        if (needsMigration) {
+          migrationPromises.push(localforage.setItem(date, migratedRecords))
         }
-        return migrated
-      })
-
-      if (needsMigration) {
-        await localforage.setItem(date, migratedRecords)
-        return migratedRecords.length
       }
-      return 0
     })
 
-    // すべてのマイグレーションを並列で実行し、マイグレーションされた件数を集計
-    await Promise.all(migrationPromises)
-
+    // すべてのマイグレーションを並列で実行
+    if (migrationPromises.length > 0) {
+      await Promise.all(migrationPromises)
+    }
   } catch (error) {
     console.error('Failed to migrate existing records:', error)
     throw new Error('Record migration failed')
