@@ -15,6 +15,7 @@ describe('useNotifications - Storage Errors', () => {
     localStorage.clear()
     vi.clearAllMocks()
     vi.restoreAllMocks()
+    _resetToastState()
   })
 
   it('should not crash when localStorage.setItem throws an error', async () => {
