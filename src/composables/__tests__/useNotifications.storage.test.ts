@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useNotifications } from '../useNotifications'
+import { useNotifications, _resetToastState } from '../useNotifications'
 import * as notificationService from '@/services/notificationService'
 import { nextTick } from 'vue'
 
