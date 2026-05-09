@@ -40,6 +40,20 @@ describe('notificationService', () => {
     expect(navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js')
   })
 
+  it('should log an error if service worker registration fails', async () => {
+    const error = new Error('Registration failed')
+    vi.mocked(navigator.serviceWorker.register).mockRejectedValueOnce(error)
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await registerServiceWorker()
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Service Worker registration failed from service:',
+      error
+    )
+    consoleSpy.mockRestore()
+  })
+
   it('should call Notification.requestPermission', async () => {
     const permission = await requestNotificationPermission()
     expect(Notification.requestPermission).toHaveBeenCalled()
