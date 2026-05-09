@@ -5,7 +5,7 @@ import { nextTick } from 'vue'
 
 // Mock notificationService
 vi.mock('@/services/notificationService', () => ({
-  requestNotificationPermission: vi.fn(),
+  requestNotificationPermission: vi.fn().mockResolvedValue('granted'),
   scheduleNotification: vi.fn(),
   cancelNotification: vi.fn(),
 }))
