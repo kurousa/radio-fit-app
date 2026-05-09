@@ -156,7 +156,6 @@ const updateCalendarAttributes = () => {
           const exerciseType = record.type === 'first' ? 'ラジオ体操第一' : 'ラジオ体操第二'
           let timeInfo = ''
           if (record.timezone) {
-            // // const utcTime = new Date(record.timestamp)
             const timeString = new Date(record.timestamp).toLocaleTimeString('ja-JP', {
               hour: '2-digit',
               minute: '2-digit',
@@ -165,7 +164,6 @@ const updateCalendarAttributes = () => {
             const timezoneAbbr = record.timezone.split('/').pop() || record.timezone
             timeInfo = ` (${timeString} ${timezoneAbbr})`
           } else if (record.timestamp) {
-            // // const utcTime = new Date(record.timestamp)
             const localTime = TimezoneService.convertUTCToLocal(record.timestamp, currentTimezone)
             const timeString = localTime.toLocaleTimeString('ja-JP', {
               hour: '2-digit',
