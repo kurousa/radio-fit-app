@@ -91,7 +91,11 @@ export function useNotifications() {
       isEnabled: isEnabled.value,
       time: notificationTime.value,
     }
-    localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings))
+    try {
+      localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings))
+    } catch (error) {
+      console.error('Error saving notification settings to localStorage:', error)
+    }
   }
 
   // Load initial settings
