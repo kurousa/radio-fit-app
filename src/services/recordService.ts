@@ -266,7 +266,7 @@ export function isTimezoneAwareRecord(record: ExerciseRecord): boolean {
  */
 export async function migrateAllRecordsToTimezoneAware(): Promise<void> {
   try {
-    const targetTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const targetTimezone = TimezoneService.getCurrentTimezoneInfo().timezone
     const migrationPromises: Promise<unknown>[] = []
 
     await localforage.iterate((records, date) => {
