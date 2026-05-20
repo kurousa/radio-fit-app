@@ -134,7 +134,7 @@ export class DateUtils {
     if (records.length === 0) return 0
 
     const today = new Date().toISOString().split('T')[0]
-    const uniqueDates = [...new Set(records.map((r) => r.date))].sort().reverse()
+    const uniqueDates = Array.from(new Set(records.map((r) => r.date).reverse()))
 
     let streak = 0
     let expectedDate = today
