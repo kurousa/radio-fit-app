@@ -5,7 +5,7 @@ import { nextTick } from 'vue'
 
 // Mock notificationService
 vi.mock('@/services/notificationService', () => ({
-  requestNotificationPermission: vi.fn().mockResolvedValue('granted'),
+  requestNotificationPermission: vi.fn(async () => 'granted'),
   scheduleNotification: vi.fn(),
   cancelNotification: vi.fn(),
 }))
@@ -31,6 +31,9 @@ describe('useNotifications - Storage Errors', () => {
 
     // Trigger a change that calls saveSettings
     isEnabled.value = true
+    await nextTick()
+    // wait for async microtasks
+    await new Promise(resolve => setTimeout(resolve, 0))
     await nextTick()
 
     // It should have called setItem and caught the error
