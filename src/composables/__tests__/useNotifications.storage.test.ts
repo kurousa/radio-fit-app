@@ -40,11 +40,8 @@ describe('useNotifications - Storage Errors', () => {
     isEnabled.value = true
     await nextTick()
 
-    // We also need to wait for any promises inside watch to resolve.
-    // The watch calls async function notificationService.requestNotificationPermission().
-    // We can yield the event loop to ensure they finish.
-    // Use a longer timeout or flushPromises if possible
-    await new Promise(resolve => setTimeout(resolve, 50))
+    // Wait for the async watcher to complete its internal promises
+    await nextTick()
 
     // It should have called setItem and caught the error
     expect(setItemSpy).toHaveBeenCalled()
