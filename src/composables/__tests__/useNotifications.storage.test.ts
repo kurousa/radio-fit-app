@@ -1,14 +1,11 @@
+import { flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotifications, _resetToastState } from '../useNotifications'
 import * as notificationService from '@/services/notificationService'
 import { nextTick } from 'vue'
 
 // Mock notificationService
-vi.mock('@/services/notificationService', () => ({
-  requestNotificationPermission: vi.fn().mockResolvedValue('granted'),
-  scheduleNotification: vi.fn(),
-  cancelNotification: vi.fn(),
-}))
+vi.mock('@/services/notificationService')
 
 describe('useNotifications - Storage Errors', () => {
   beforeEach(() => {
@@ -19,6 +16,7 @@ describe('useNotifications - Storage Errors', () => {
   })
 
   it('should not crash when localStorage.setItem throws an error', async () => {
+    vi.mocked(notificationService.requestNotificationPermission).mockResolvedValue('granted')
     // Mock setItem to throw an error
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError')
@@ -32,12 +30,13 @@ describe('useNotifications - Storage Errors', () => {
     // Trigger a change that calls saveSettings
     isEnabled.value = true
     await nextTick()
+    await flushPromises()
 
     // It should have called setItem and caught the error
     expect(setItemSpy).toHaveBeenCalled()
     expect(consoleSpy).toHaveBeenCalledWith(
       'Error saving notification settings to localStorage:',
-      expect.any(Error)
+      expect.any(Error),
     )
 
     // Verify it didn't crash and the app continues to function

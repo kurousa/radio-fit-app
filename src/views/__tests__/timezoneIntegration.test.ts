@@ -38,7 +38,7 @@ describe('Timezone Change Integration', () => {
   afterEach(() => {
     timezoneChangeDetector.stopMonitoring()
     // プライベートプロパティにアクセスするためのタイプアサーション
-     
+
     const detector = timezoneChangeDetector as any
     if (detector.callbacks && detector.callbacks.clear) {
       detector.callbacks.clear()

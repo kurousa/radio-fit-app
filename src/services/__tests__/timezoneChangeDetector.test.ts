@@ -11,12 +11,12 @@ vi.mock('../timezoneService', () => ({
 
 describe('TimezoneChangeDetector', () => {
   let detector: TimezoneChangeDetector
-   
+
   let mockGetCurrentTimezoneInfo: any
 
   beforeEach(() => {
     // シングルトンインスタンスをリセット
-     
+
     ;(TimezoneChangeDetector as any).instance = null
 
     mockGetCurrentTimezoneInfo = vi.mocked(TimezoneService.getCurrentTimezoneInfo)

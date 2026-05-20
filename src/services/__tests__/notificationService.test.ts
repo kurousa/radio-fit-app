@@ -32,7 +32,14 @@ describe('notificationService', () => {
         requestPermission: vi.fn().mockResolvedValue('granted'),
       },
       writable: true,
+      configurable: true,
     })
+  })
+
+  it("should return 'default' if Notification is not supported", async () => {
+    delete (global as any).Notification
+    const permission = await requestNotificationPermission()
+    expect(permission).toBe('default')
   })
 
   it('should call navigator.serviceWorker.register', async () => {
@@ -49,7 +56,7 @@ describe('notificationService', () => {
 
     expect(consoleSpy).toHaveBeenCalledWith(
       'Service Worker registration failed from service:',
-      error
+      error,
     )
     consoleSpy.mockRestore()
   })
