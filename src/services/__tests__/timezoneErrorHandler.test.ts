@@ -206,6 +206,33 @@ describe('TimezoneErrorHandler', () => {
       expect(errorLog[49].message).toBe('エラー50')
     })
 
+    it('エラータイプ（errorType）を指定して発生回数を正しくフィルタリングする', () => {
+      const error1: TimezoneError = {
+        type: 'detection_failed',
+        message: 'エラー1',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
+      }
+
+      const error2: TimezoneError = {
+        type: 'invalid_timezone',
+        message: 'エラー2',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
+      }
+
+      const error3: TimezoneError = {
+        type: 'invalid_timezone',
+        message: 'エラー3',
+        fallbackAction: TIMEZONE_FALLBACK_ACTIONS.USE_UTC,
+      }
+
+      TimezoneErrorHandler.handleError(error1)
+      TimezoneErrorHandler.handleError(error2)
+      TimezoneErrorHandler.handleError(error3)
+
+      expect(TimezoneErrorHandler.getErrorCount('invalid_timezone')).toBe(2)
+      expect(TimezoneErrorHandler.getErrorCount('conversion_error')).toBe(0)
+    })
+
     it('エラーカウントを正しく取得する', () => {
       const error1: TimezoneError = {
         type: 'detection_failed',
