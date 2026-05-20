@@ -107,22 +107,44 @@ const longestStreak = computed(() => {
     const sortedRecords = [...allRecords.value].sort((a, b) => {
       return a.timestamp - b.timestamp
     })
-    const uniqueDates = [...new Set(sortedRecords.map((record) => record.date))]
-    for (let i = 0; i < uniqueDates.length; i++) {
-      const currentDate = new Date(uniqueDates[i] + 'T12:00:00')
-      if (i === 0) {
+
+    let prevDateTs = null
+    let prevDateStr = null
+
+    for (let i = 0; i < sortedRecords.length; i++) {
+      const dateStr = sortedRecords[i].date
+      if (dateStr === prevDateStr) {
+        continue
+      }
+      prevDateStr = dateStr
+
+      let currentDateTs
+      if (dateStr.length === 10 && dateStr[4] === '-' && dateStr[7] === '-') {
+        const y = parseInt(dateStr.substring(0, 4), 10)
+        const m = parseInt(dateStr.substring(5, 7), 10)
+        const d = parseInt(dateStr.substring(8, 10), 10)
+        currentDateTs = new Date(y, m - 1, d, 12).getTime()
+      } else {
+        currentDateTs = new Date(dateStr + 'T12:00:00').getTime()
+      }
+
+      if (prevDateTs === null) {
         currentStreak = 1
       } else {
-        const prevDate = new Date(uniqueDates[i - 1] + 'T12:00:00')
-        const diffTime = Math.abs(currentDate.getTime() - prevDate.getTime())
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        const diffTime = Math.abs(currentDateTs - prevDateTs)
+        const diffDays = Math.round(diffTime / 86400000)
         if (diffDays === 1) {
           currentStreak++
         } else {
           currentStreak = 1
         }
       }
-      maxStreak = Math.max(maxStreak, currentStreak)
+
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak
+      }
+
+      prevDateTs = currentDateTs
     }
     return maxStreak
   }

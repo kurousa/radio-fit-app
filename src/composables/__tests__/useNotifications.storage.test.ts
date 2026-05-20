@@ -19,6 +19,8 @@ describe('useNotifications - Storage Errors', () => {
   })
 
   it('should not crash when localStorage.setItem throws an error', async () => {
+    vi.mocked(notificationService.requestNotificationPermission).mockResolvedValue('granted')
+
     // Mock setItem to throw an error
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError')
@@ -32,6 +34,10 @@ describe('useNotifications - Storage Errors', () => {
     // Trigger a change that calls saveSettings
     isEnabled.value = true
     await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
 
     // It should have called setItem and caught the error
     expect(setItemSpy).toHaveBeenCalled()
@@ -41,7 +47,7 @@ describe('useNotifications - Storage Errors', () => {
     )
 
     // Verify it didn't crash and the app continues to function
-    expect(isEnabled.value).toBe(true)
+    expect(isEnabled.value).toBe(true) // We want it to be true
 
     consoleSpy.mockRestore()
     setItemSpy.mockRestore()
