@@ -45,7 +45,10 @@ describe('useNotifications - Security and Robustness', () => {
   })
 
   it('should handle invalid time format in localStorage JSON', () => {
-    localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify({ isEnabled: true, time: 'invalid-time' }))
+    localStorage.setItem(
+      NOTIFICATION_SETTINGS_KEY,
+      JSON.stringify({ isEnabled: true, time: 'invalid-time' }),
+    )
 
     const { isEnabled, notificationTime } = useNotifications()
 
@@ -58,7 +61,10 @@ describe('useNotifications - Security and Robustness', () => {
 
   it('should handle extremely long time strings (potential DoS/injection)', () => {
     const longString = '0'.repeat(10000)
-    localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify({ isEnabled: true, time: longString }))
+    localStorage.setItem(
+      NOTIFICATION_SETTINGS_KEY,
+      JSON.stringify({ isEnabled: true, time: longString }),
+    )
 
     const { isEnabled, notificationTime } = useNotifications()
 

@@ -11,12 +11,12 @@ vi.mock('../timezoneService', () => ({
 
 describe('TimezoneChangeDetector', () => {
   let detector: TimezoneChangeDetector
-   
+
   let mockGetCurrentTimezoneInfo: any
 
   beforeEach(() => {
     // シングルトンインスタンスをリセット
-     
+
     ;(TimezoneChangeDetector as any).instance = null
 
     mockGetCurrentTimezoneInfo = vi.mocked(TimezoneService.getCurrentTimezoneInfo)
@@ -207,6 +207,18 @@ describe('TimezoneChangeDetector', () => {
       expect(detector.getCallbackCount()).toBe(1)
 
       unsubscribe2()
+      expect(detector.getCallbackCount()).toBe(0)
+    })
+
+    it('should clear all listeners', () => {
+      expect(detector.getCallbackCount()).toBe(0)
+
+      detector.onTimezoneChange(() => {})
+      detector.onTimezoneChange(() => {})
+
+      expect(detector.getCallbackCount()).toBe(2)
+
+      detector.clearListeners()
       expect(detector.getCallbackCount()).toBe(0)
     })
   })

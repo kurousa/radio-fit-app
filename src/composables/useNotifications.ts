@@ -77,7 +77,10 @@ export function useNotifications() {
         if (typeof settings.isEnabled === 'boolean') {
           isEnabled.value = settings.isEnabled
         }
-        if (typeof settings.time === 'string' && /^([01]\d|2[0-3]):([0-5]\d)$/.test(settings.time)) {
+        if (
+          typeof settings.time === 'string' &&
+          /^([01]\d|2[0-3]):([0-5]\d)$/.test(settings.time)
+        ) {
           notificationTime.value = settings.time
         }
       }

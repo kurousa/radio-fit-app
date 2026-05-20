@@ -69,6 +69,13 @@ export class TimezoneChangeDetector {
   }
 
   /**
+   * 全てのリスナーを解除
+   */
+  clearListeners(): void {
+    this.callbacks.clear()
+  }
+
+  /**
    * 現在のタイムゾーンを取得
    */
   getCurrentTimezone(): string {

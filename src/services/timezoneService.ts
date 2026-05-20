@@ -36,7 +36,9 @@ export class TimezoneErrorHandler {
     console.info('Fallback action:', error.fallbackAction)
 
     // エラータイプに応じた適切な通知レベルを決定
-    const notificationType: 'error' | 'warning' | 'info' = TimezoneErrorHandler.getNotificationType(error.type)
+    const notificationType: 'error' | 'warning' | 'info' = TimezoneErrorHandler.getNotificationType(
+      error.type,
+    )
     const userMessage = TimezoneErrorHandler.formatUserMessage(error)
 
     // ユーザーへの通知を表示

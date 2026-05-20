@@ -49,7 +49,7 @@ describe('notificationService', () => {
 
     expect(consoleSpy).toHaveBeenCalledWith(
       'Service Worker registration failed from service:',
-      error
+      error,
     )
     consoleSpy.mockRestore()
   })

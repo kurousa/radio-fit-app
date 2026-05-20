@@ -4,11 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { TimezoneErrorHandler } from '../timezoneService'
-import {
-  type TimezoneError,
-  TIMEZONE_FALLBACK_ACTIONS,
-  TIMEZONE_USER_MESSAGES,
-} from '../types'
+import { type TimezoneError, TIMEZONE_FALLBACK_ACTIONS, TIMEZONE_USER_MESSAGES } from '../types'
 
 describe('TimezoneErrorHandler', () => {
   // コンソールメソッドをモック
@@ -67,7 +63,9 @@ describe('TimezoneErrorHandler', () => {
     })
 
     it('登録されたコールバック関数を呼び出す', () => {
-      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(
+        () => {},
+      )
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
 
       const error: TimezoneError = {
@@ -352,7 +350,9 @@ describe('TimezoneErrorHandler', () => {
 
   describe('通知レベル判定', () => {
     it('エラータイプに応じて適切な通知レベルを設定する', () => {
-      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(() => {})
+      const mockCallback: (message: string, type: 'error' | 'warning' | 'info') => void = vi.fn(
+        () => {},
+      )
       TimezoneErrorHandler.registerNotificationCallback(mockCallback)
       TimezoneErrorHandler.handleError({
         type: 'detection_failed',
