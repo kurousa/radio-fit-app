@@ -72,13 +72,17 @@ export function useNotifications() {
     if (!settingsJson) return
 
     try {
-      const settings = JSON.parse(settingsJson)
+      const settings = JSON.parse(settingsJson, (key, value) => {
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') return undefined
+        return value
+      })
       if (settings && typeof settings === 'object') {
         if (typeof settings.isEnabled === 'boolean') {
           isEnabled.value = settings.isEnabled
         }
         if (
           typeof settings.time === 'string' &&
+          settings.time.length === 5 &&
           /^([01]\d|2[0-3]):([0-5]\d)$/.test(settings.time)
         ) {
           notificationTime.value = settings.time

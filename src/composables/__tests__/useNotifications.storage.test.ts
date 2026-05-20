@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotifications, _resetToastState } from '../useNotifications'
-import * as notificationService from '@/services/notificationService'
+
 import { nextTick } from 'vue'
 
 // Mock notificationService
@@ -25,10 +25,9 @@ describe('useNotifications - Storage Errors', () => {
     // Mock console.error to avoid polluting test output
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const { isEnabled } = useNotifications()
-
     // Trigger a change that calls saveSettings
-    isEnabled.value = true
+    const { notificationTime } = useNotifications()
+    notificationTime.value = '09:00'
     await nextTick()
     await flushPromises()
 
@@ -40,7 +39,7 @@ describe('useNotifications - Storage Errors', () => {
     )
 
     // Verify it didn't crash and the app continues to function
-    expect(isEnabled.value).toBe(true)
+    expect(notificationTime.value).toBe('09:00')
 
     consoleSpy.mockRestore()
     setItemSpy.mockRestore()
