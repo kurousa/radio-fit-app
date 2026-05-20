@@ -149,6 +149,18 @@ const updateCalendarAttributes = () => {
   try {
     const currentTimezone = TimezoneService.getCurrentTimezoneInfo().timezone
     const calendarDates = DateUtils.convertRecordsForCalendar(allRecords.value, currentTimezone)
+    const timeFormatters = new Map<string, Intl.DateTimeFormat>()
+    const getFormatter = (timeZone?: string) => {
+      const key = timeZone || 'default'
+      if (!timeFormatters.has(key)) {
+        const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' }
+        if (timeZone) {
+          options.timeZone = timeZone
+        }
+        timeFormatters.set(key, new Intl.DateTimeFormat('ja-JP', options))
+      }
+      return timeFormatters.get(key)!
+    }
     const attributes = calendarDates.map((calendarDate) => {
       const { date, records, localDateString } = calendarDate
       const recordDetails = records
@@ -156,19 +168,12 @@ const updateCalendarAttributes = () => {
           const exerciseType = record.type === 'first' ? 'ラジオ体操第一' : 'ラジオ体操第二'
           let timeInfo = ''
           if (record.timezone) {
-            const timeString = new Date(record.timestamp).toLocaleTimeString('ja-JP', {
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: record.timezone,
-            })
+            const timeString = getFormatter(record.timezone).format(new Date(record.timestamp))
             const timezoneAbbr = record.timezone.split('/').pop() || record.timezone
             timeInfo = ` (${timeString} ${timezoneAbbr})`
           } else if (record.timestamp) {
             const localTime = TimezoneService.convertUTCToLocal(record.timestamp, currentTimezone)
-            const timeString = localTime.toLocaleTimeString('ja-JP', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })
+            const timeString = getFormatter().format(localTime)
             timeInfo = ` (${timeString})`
           }
           return `${exerciseType}${timeInfo}`
