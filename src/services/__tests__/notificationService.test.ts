@@ -54,6 +54,16 @@ describe('notificationService', () => {
     consoleSpy.mockRestore()
   })
 
+  it('should not throw if serviceWorker is not supported in navigator', async () => {
+    Object.defineProperty(global, 'navigator', {
+      value: {},
+      writable: true,
+    })
+
+    await expect(registerServiceWorker()).resolves.toBeUndefined()
+  })
+
+
   it('should call Notification.requestPermission', async () => {
     const permission = await requestNotificationPermission()
     expect(Notification.requestPermission).toHaveBeenCalled()

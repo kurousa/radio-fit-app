@@ -27,11 +27,24 @@ describe('useNotifications - Storage Errors', () => {
     // Mock console.error to avoid polluting test output
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
+    // Ensure the mock returns 'granted'
+    vi.mocked(notificationService.requestNotificationPermission).mockResolvedValue('granted')
+
     const { isEnabled } = useNotifications()
 
     // Trigger a change that calls saveSettings
+    // We need to bypass the watch conditional 'oldValue === undefined'
+    // To do this, we can set it to false first, wait for tick, then to true
+    isEnabled.value = false
+    await nextTick()
     isEnabled.value = true
     await nextTick()
+
+    // We also need to wait for any promises inside watch to resolve.
+    // The watch calls async function notificationService.requestNotificationPermission().
+    // We can yield the event loop to ensure they finish.
+    // Use a longer timeout or flushPromises if possible
+    await new Promise(resolve => setTimeout(resolve, 50))
 
     // It should have called setItem and caught the error
     expect(setItemSpy).toHaveBeenCalled()
