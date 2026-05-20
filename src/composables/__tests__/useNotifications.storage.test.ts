@@ -1,11 +1,12 @@
+import * as notificationService from '@/services/notificationService'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotifications, _resetToastState } from '../useNotifications'
-import * as notificationService from '@/services/notificationService'
+
 import { nextTick } from 'vue'
 
 // Mock notificationService
 vi.mock('@/services/notificationService', () => ({
-  requestNotificationPermission: vi.fn().mockResolvedValue('granted'),
+  requestNotificationPermission: vi.fn(),
   scheduleNotification: vi.fn(),
   cancelNotification: vi.fn(),
 }))
@@ -19,6 +20,8 @@ describe('useNotifications - Storage Errors', () => {
   })
 
   it('should not crash when localStorage.setItem throws an error', async () => {
+    vi.mocked(notificationService.requestNotificationPermission).mockResolvedValue('granted')
+
     // Mock setItem to throw an error
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError')
