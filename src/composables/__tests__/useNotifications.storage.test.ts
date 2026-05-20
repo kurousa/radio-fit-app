@@ -40,7 +40,7 @@ describe('useNotifications - Storage Errors', () => {
     )
 
     // Verify it didn't crash and the app continues to function
-    expect(isEnabled.value).toBe(false) // revert true to false if mock fails? wait... let's see. The mock returns granted so it shouldn't revert... wait...
+    expect(isEnabled.value).toBe(true)
 
     consoleSpy.mockRestore()
     setItemSpy.mockRestore()
