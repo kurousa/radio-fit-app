@@ -1,11 +1,8 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotifications, _resetToastState } from '../useNotifications'
-
+import * as notificationService from '@/services/notificationService'
 import { nextTick } from 'vue'
-
-// Mock notificationService
-vi.mock('@/services/notificationService')
 
 describe('useNotifications - Storage Errors', () => {
   beforeEach(() => {
@@ -13,10 +10,18 @@ describe('useNotifications - Storage Errors', () => {
     vi.clearAllMocks()
     vi.restoreAllMocks()
     _resetToastState()
+
+    // Provide mock Notification object to ensure it is supported
+    Object.defineProperty(global, 'Notification', {
+      value: {
+        requestPermission: vi.fn().mockResolvedValue('granted'),
+      },
+      writable: true,
+      configurable: true,
+    })
   })
 
   it('should not crash when localStorage.setItem throws an error', async () => {
-    vi.mocked(notificationService.requestNotificationPermission).mockResolvedValue('granted')
     // Mock setItem to throw an error
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError')
@@ -25,9 +30,10 @@ describe('useNotifications - Storage Errors', () => {
     // Mock console.error to avoid polluting test output
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
+    const { isEnabled } = useNotifications()
+
     // Trigger a change that calls saveSettings
-    const { notificationTime } = useNotifications()
-    notificationTime.value = '09:00'
+    isEnabled.value = true
     await nextTick()
     await flushPromises()
 
@@ -35,11 +41,11 @@ describe('useNotifications - Storage Errors', () => {
     expect(setItemSpy).toHaveBeenCalled()
     expect(consoleSpy).toHaveBeenCalledWith(
       'Error saving notification settings to localStorage:',
-      expect.any(Error),
+      expect.any(Error)
     )
 
     // Verify it didn't crash and the app continues to function
-    expect(notificationTime.value).toBe('09:00')
+    expect(isEnabled.value).toBe(true)
 
     consoleSpy.mockRestore()
     setItemSpy.mockRestore()
