@@ -24,7 +24,6 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL), // Viteの場合
-  // history: createWebHistory(), // Vue CLIの場合
   routes,
 })
 
