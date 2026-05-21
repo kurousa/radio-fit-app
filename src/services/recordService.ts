@@ -12,7 +12,7 @@ localforage.config({
 })
 
 // Intl.DateTimeFormatのキャッシュ
-const formatterCache = new Map<string, Intl.DateTimeFormat>()
+import { FormatterCache as formatterCache } from "../utils/formatterCache"
 
 export interface ExerciseRecord {
   date: string // YYYY-MM-DD (ローカル日付)

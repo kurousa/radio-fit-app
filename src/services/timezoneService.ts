@@ -11,7 +11,7 @@ import {
 } from './types'
 
 // Intl.DateTimeFormatのキャッシュ
-const formatterCache = new Map<string, Intl.DateTimeFormat>()
+import { FormatterCache as formatterCache } from "../utils/formatterCache"
 
 /**
  * タイムゾーンエラーハンドリングクラス

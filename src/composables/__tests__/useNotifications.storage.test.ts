@@ -1,14 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotifications, _resetToastState } from '../useNotifications'
-import * as notificationService from '@/services/notificationService'
 import { nextTick } from 'vue'
-
-// Mock notificationService
-vi.mock('@/services/notificationService', () => ({
-  requestNotificationPermission: vi.fn().mockResolvedValue('granted'),
-  scheduleNotification: vi.fn(),
-  cancelNotification: vi.fn(),
-}))
 
 describe('useNotifications - Storage Errors', () => {
   beforeEach(() => {
@@ -27,10 +19,10 @@ describe('useNotifications - Storage Errors', () => {
     // Mock console.error to avoid polluting test output
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const { isEnabled } = useNotifications()
+    const { notificationTime } = useNotifications()
 
     // Trigger a change that calls saveSettings
-    isEnabled.value = true
+    notificationTime.value = '10:00'
     await nextTick()
 
     // It should have called setItem and caught the error
@@ -41,7 +33,7 @@ describe('useNotifications - Storage Errors', () => {
     )
 
     // Verify it didn't crash and the app continues to function
-    expect(isEnabled.value).toBe(true)
+    expect(notificationTime.value).toBe('10:00')
 
     consoleSpy.mockRestore()
     setItemSpy.mockRestore()
