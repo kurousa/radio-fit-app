@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, watch} from 'vue'
 import { recordExerciseWithTimezone } from '../services/recordService' // タイムゾーン対応記録サービスをインポート
 import { TimezoneErrorHandler } from '../services/timezoneService' // エラーハンドリング用
 import { useRoute } from 'vue-router' // ルーティングからクエリパラメータを取得するために追加
@@ -117,8 +117,6 @@ export default defineComponent({
         // 完了ポップアップを表示
         showCompletionPopup.value = true
 
-        // DOM更新を待ってから音声のみモードに切り替える
-        await nextTick()
 
         // 少し遅延させてから音声のみモードに切り替える（DOM操作の競合を避けるため）
         setTimeout(() => {
