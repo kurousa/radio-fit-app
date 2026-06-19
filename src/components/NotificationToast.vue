@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { useToastNotifications } from '../composables/useNotifications'
+import { useToastNotifications } from '../composables/useToastNotifications'
 
 const { notifications, removeToast } = useToastNotifications()
 </script>

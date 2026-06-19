@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useToastNotifications, _resetToastState } from '../useNotifications'
+import { useToastNotifications, _resetToastState } from '../useToastNotifications'
 
 describe('useToastNotifications', () => {
   beforeEach(() => {

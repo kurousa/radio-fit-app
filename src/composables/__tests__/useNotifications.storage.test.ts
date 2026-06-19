@@ -1,6 +1,7 @@
 import * as notificationService from '@/services/notificationService'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useNotifications, _resetToastState } from '../useNotifications'
+import { useNotifications } from '../useNotifications'
+import { _resetToastState } from '../useToastNotifications'
 
 import { nextTick } from 'vue'
 
@@ -34,13 +35,13 @@ describe('useNotifications - Storage Errors', () => {
     const { notificationTime } = useNotifications()
     notificationTime.value = '09:00'
     await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     // It should have called setItem and caught the error
     expect(setItemSpy).toHaveBeenCalled()
     expect(consoleSpy).toHaveBeenCalledWith(
       'Error saving notification settings to localStorage:',
-      expect.any(Error)
+      expect.any(Error),
     )
 
     // Verify it didn't crash and the app continues to function
