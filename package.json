@@ -26,7 +26,7 @@
     "@vue-youtube/core": "^0.0.6",
     "localforage": "^1.10.0",
     "v-calendar": "^3.1.2",
-    "vue": "^3.5.34",
+    "vue": "^3.5.45",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
